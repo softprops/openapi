@@ -1,0 +1,64 @@
+#[derive(Debug, Deserialize, PartialEq)]
+pub struct Spec {
+    pub swagger: String,
+    pub info: Info,
+    pub paths: BTreeMap<String, Operations>, // / -> get -> op
+    pub definitions: BTreeMap<String, Schema>,
+}
+
+#[derive(Debug, Deserialize, PartialEq)]
+pub struct Info {
+    pub title: String,
+    pub version: String,
+}
+
+#[derive(Debug, Deserialize, PartialEq)]
+pub struct Operations {
+    pub get: Option<Operation>,
+    pub post: Option<Operation>,
+    pub put: Option<Operation>,
+    pub patch: Option<Operation>,
+    pub delete: Option<Operation>,
+}
+
+#[derive(Debug, Deserialize, PartialEq)]
+pub struct Operation {
+    pub description: Option<String>,
+    pub consumes: Option<Vec<String>>,
+    pub produces: Option<Vec<String>>,
+    pub schemes: Vec<String>,
+    pub tags: Vec<String>,
+    pub operationId: Option<String>,
+    // pub responses: BTreeMap<String, Response>,
+    pub parameters: Option<Vec<Parameter>>,
+}
+
+
+#[derive(Debug, Deserialize, PartialEq)]
+pub struct Parameter {
+    pub name: String,
+    #[serde(rename="in")]
+    pub location: String,
+    pub required: Option<bool>,
+    pub schema: Option<Schema>,
+    pub uniqueItems: Option<bool>,
+    #[serde(rename="type")]
+    pub param_type: Option<String>,
+}
+
+#[derive(Debug, Deserialize, PartialEq)]
+pub struct Response {
+    pub description: String,
+    pub schema: Option<Schema>,
+}
+
+#[derive(Debug, Deserialize, PartialEq)]
+pub struct Schema {
+    #[serde(rename="$ref")]
+    pub ref_path: Option<String>,
+    pub description: Option<String>,
+    #[serde(rename="type")]
+    pub schema_type: Option<String>,
+    pub items: Option<Box<Schema>>, // if scheme_type array (box is for recursion)
+    pub properties: Option<BTreeMap<String, Schema>>, // implies object
+}
