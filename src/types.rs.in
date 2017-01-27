@@ -29,7 +29,7 @@ pub struct Operation {
     pub schemes: Vec<String>,
     pub tags: Vec<String>,
     pub operationId: Option<String>,
-    // pub responses: BTreeMap<String, Response>,
+    pub responses: BTreeMap<String, Response>,
     pub parameters: Option<Vec<Parameter>>,
 }
 
