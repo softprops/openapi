@@ -14,7 +14,7 @@ fn main() {
                     println!("{}", name);
                     println!("{:#?}", definition);
                 }*/
-                println!("{}", openapi::to_yaml(&spec));
+                println!("{}", openapi::to_json(&spec).unwrap());
             }
             Err(e) => {
 
