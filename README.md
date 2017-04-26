@@ -1,6 +1,6 @@
 # open api [![Build Status](https://travis-ci.org/softprops/openapi.svg?branch=master)](https://travis-ci.org/softprops/openapi)
 
-> Rust crate for serializing and deserializing open api documents
+> Rust crate for serializing and deserializing [open api](http://swagger.io/specification/) documents
 
 ## install
 
