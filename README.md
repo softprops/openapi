@@ -2,4 +2,26 @@
 
 > Rust create for serializing and deserializing open api documents
 
+## install
+
+add the following to your `Cargo.toml` file
+
+```toml
+[dependencies]
+openapi = "0.1"
+```
+
+## usage
+
+```rust
+extern crate openapi;
+
+fn main() {
+  match openapi::from_path("path/to/openapi.yaml") {
+    Ok(spec) => println!("spec: {:?}", spec),
+    Err(err) => println!("error: {}", err)
+  }
+}
+```
+
 Doug Tangren (softprops) 2017
