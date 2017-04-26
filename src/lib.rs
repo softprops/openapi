@@ -7,6 +7,7 @@ extern crate serde_json;
 extern crate serde_yaml;
 
 use std::fs;
+use std::io::Read;
 use std::path::Path;
 
 mod schema;
@@ -22,17 +23,28 @@ pub mod errors {
     }
 }
 
+/// deserialize an open api spec from a path
 pub fn from_path<P>(path: P) -> errors::Result<Spec>
 where
     P: AsRef<Path>,
 {
-    Ok(serde_yaml::from_reader::<_, Spec>(fs::File::open(path)?)?)
+    from_reader(fs::File::open(path)?)
 }
 
+/// deserialize an open api spec from type which implements Read
+pub fn from_reader<R>(read: R) -> errors::Result<Spec>
+where
+    R: Read,
+{
+    Ok(serde_yaml::from_reader::<R, Spec>(read)?)
+}
+
+/// serialize to a yaml string
 pub fn to_yaml(spec: &Spec) -> errors::Result<String> {
     Ok(serde_yaml::to_string(spec)?)
 }
 
+/// serialize to a json string
 pub fn to_json(spec: &Spec) -> errors::Result<String> {
     Ok(serde_json::to_string_pretty(spec)?)
 }
