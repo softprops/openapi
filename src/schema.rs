@@ -60,7 +60,8 @@ pub struct Info {
     pub title: String,
     pub version: String,
     #[serde(skip_serializing_if="Option::is_none")]
-    pub termsOfService: Option<String>,
+    #[serde(rename="termsOfService")]
+    pub terms_of_service: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize, PartialEq)]
