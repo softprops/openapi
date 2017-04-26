@@ -137,6 +137,13 @@ pub struct Schema {
     #[serde(rename="type")]
     pub schema_type: Option<String>,
     #[serde(skip_serializing_if="Option::is_none")]
+    pub format: Option<String>,
+    #[serde(skip_serializing_if="Option::is_none")]
+    #[serde(rename="enum")]
+    pub enum_values: Option<Vec<String>>,
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub required: Option<Vec<String>>,
+    #[serde(skip_serializing_if="Option::is_none")]
     pub items: Option<Box<Schema>>, // if scheme_type array (box is for recursion)
     #[serde(skip_serializing_if="Option::is_none")]
     pub properties: Option<BTreeMap<String, Schema>>, // implies object

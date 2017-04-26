@@ -1,3 +1,7 @@
+# 0.1.3
+
+* added optional `required` and `enum_values` fields to `Schema` object
+
 # 0.1.2
 
 * added optional `format` fields to `Parameter` object
