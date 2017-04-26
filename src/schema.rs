@@ -74,13 +74,17 @@ pub struct Operations {
 #[derive(Debug, Deserialize, Serialize, PartialEq)]
 pub struct Operation {
     #[serde(skip_serializing_if="Option::is_none")]
+    pub summary: Option<String>,
+    #[serde(skip_serializing_if="Option::is_none")]
     pub description: Option<String>,
     #[serde(skip_serializing_if="Option::is_none")]
     pub consumes: Option<Vec<String>>,
     #[serde(skip_serializing_if="Option::is_none")]
     pub produces: Option<Vec<String>>,
-    pub schemes: Vec<String>,
-    pub tags: Vec<String>,
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub schemes: Option<Vec<String>>,
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub tags: Option<Vec<String>>,
     #[serde(skip_serializing_if="Option::is_none")]
     #[serde(rename="operationId")]
     pub operation_id: Option<String>,
