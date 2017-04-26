@@ -109,6 +109,8 @@ pub struct Parameter {
     #[serde(skip_serializing_if="Option::is_none")]
     #[serde(rename="type")]
     pub param_type: Option<String>,
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub format: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize, PartialEq)]
