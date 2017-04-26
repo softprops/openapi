@@ -1,3 +1,7 @@
+# 0.1.4
+
+* added operational `parameters` field to `Operations` object
+
 # 0.1.3
 
 * added optional `required` and `enum_values` fields to `Schema` object

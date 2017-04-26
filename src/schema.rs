@@ -70,6 +70,8 @@ pub struct Operations {
     pub patch: Option<Operation>,
     #[serde(skip_serializing_if="Option::is_none")]
     pub delete: Option<Operation>,
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub parameters: Option<Vec<Parameter>>,
 }
 
 #[derive(Debug, Deserialize, Serialize, PartialEq)]
