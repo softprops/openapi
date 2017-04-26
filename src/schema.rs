@@ -31,13 +31,6 @@ pub struct Spec {
 }
 
 
-impl Spec {
-    pub fn unfurl(self) -> Self {
-        self
-    }
-}
-
-
 #[derive(Debug, Deserialize, Serialize, PartialEq)]
 pub struct Tag {
     pub name: String,
@@ -95,7 +88,6 @@ pub struct Operation {
     #[serde(skip_serializing_if="Option::is_none")]
     pub parameters: Option<Vec<Parameter>>,
 }
-
 
 #[derive(Debug, Deserialize, Serialize, PartialEq)]
 pub struct Parameter {
