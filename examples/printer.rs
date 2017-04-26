@@ -6,14 +6,15 @@ fn main() {
     if let Some(path) = std::env::args().nth(1) {
         match openapi::from_path(path) {
             Ok(spec) => {
-                for (path, op) in spec.paths {
+                /*for (path, op) in spec.paths {
                     println!("{}", path);
                     println!("{:#?}", op);
                 }
                 for (name, definition) in spec.definitions {
                     println!("{}", name);
                     println!("{:#?}", definition);
-                }
+                }*/
+                println!("{}", openapi::to_yaml(&spec));
             }
             Err(e) => {
 

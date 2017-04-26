@@ -27,6 +27,10 @@ where
     Ok(serde_yaml::from_reader::<_, Spec>(fs::File::open(path)?)?)
 }
 
+pub fn to_yaml(spec: &Spec) -> String {
+    serde_yaml::to_string(spec).unwrap()
+}
+
 #[cfg(test)]
 mod tests {
     #[test]
