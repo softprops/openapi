@@ -127,9 +127,15 @@ pub struct Security {
     pub security_type: String, // todo:
 }
 
+/// A [JSON schema](http://json-schema.org/) definition describing
+/// the shape and properties of an object.
+///
+/// This may also contain a `$ref` to another definition
 #[derive(Debug, Deserialize, Serialize, PartialEq)]
 pub struct Schema {
     #[serde(skip_serializing_if="Option::is_none")]
+    /// a [JSON reference](https://tools.ietf.org/html/draft-pbryan-zyp-json-ref-03)
+    /// path to another defintion
     #[serde(rename="$ref")]
     pub ref_path: Option<String>,
     #[serde(skip_serializing_if="Option::is_none")]

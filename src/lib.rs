@@ -41,6 +41,7 @@ use std::path::Path;
 mod schema;
 pub use schema::*;
 
+/// errors that openapi functions may return
 pub mod errors {
     error_chain!{
         foreign_links {
