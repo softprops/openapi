@@ -51,6 +51,16 @@ pub fn to_json(spec: &Spec) -> errors::Result<String> {
 
 #[cfg(test)]
 mod tests {
+    use super::*;
+    // Just tests if the deserialization does not blow up. But does not test correctness
     #[test]
-    fn it_works() {}
+    fn can_deserialize() {
+        for entry in fs::read_dir("data/").unwrap() {
+            let entry = entry.unwrap();
+            let path = entry.path();
+            // cargo test -- --nocapture to see this message
+            println!("Testing if {:?} is deserializable", path);
+            from_path(path).unwrap();
+        }
+    }
 }
