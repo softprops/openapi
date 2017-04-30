@@ -1,4 +1,4 @@
-# open api [![Build Status](https://travis-ci.org/softprops/openapi.svg?branch=master)](https://travis-ci.org/softprops/openapi) [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](LICENSE) [![crates.io](http://meritbadge.herokuapp.com/openapi)]
+# open api [![Build Status](https://travis-ci.org/softprops/openapi.svg?branch=master)](https://travis-ci.org/softprops/openapi) [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg)](LICENSE) [![crates.io](http://meritbadge.herokuapp.com/hubcaps)](https://crates.io/crates/hubcaps)
 
 > Rust crate for serializing and deserializing [open api](http://swagger.io/specification/) documents
 
