@@ -1,3 +1,8 @@
+# 0.1.5
+
+* expose other schema types as public interfaces
+* re-export Result and ResultExt as top level interfaces
+
 # 0.1.4
 
 * added operational `parameters` field to `Operations` object

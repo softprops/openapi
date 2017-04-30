@@ -1,6 +1,6 @@
 [package]
 name = "openapi"
-version = "0.1.4"
+version = "0.1.5"
 authors = ["softprops <d.tangren@gmail.com>"]
 description = "Rust bindings for openapi schemas"
 documentation = "https://softprops.github.io/openapi"
