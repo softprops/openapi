@@ -1,3 +1,31 @@
+//! Openapi provides structures and support for serializing and deserializing [openapi](https://github.com/OAI/OpenAPI-Specification) specifications
+//!
+//! # Examples
+//!
+//! Typical use deserialing an existing to a persisted spec to rust form of visa versa
+//!
+//! The hyper client should be configured with tls.
+//!
+//! ```no_run
+//! extern crate openapi;
+//!
+//! fn main() {
+//!   match openapi::from_path("path/to/openapi.yaml") {
+//!     Ok(spec) => println!("spec: {:?}", spec),
+//!     Err(err) => println!("error: {}", err)
+//!   }
+//! }
+//! ```
+//!
+//! # Errors
+//!
+//! Operations typically result in a `openapi::Result` Type which is an alias for Rust's
+//! built-in Result with the Err Type fixed to the
+//! [openapi::errors::Error](errors/struct.Error.html) enum type. These are provided
+//! using [error_chain](https://github.com/brson/error-chain) crate so their
+//! shape and behavior should be consistent and familiar to existing
+//! error_chain users.
+//!
 #[macro_use]
 extern crate error_chain;
 #[macro_use]
@@ -22,6 +50,7 @@ pub mod errors {
         }
     }
 }
+pub use errors::{Result, ResultExt};
 
 /// deserialize an open api spec from a path
 pub fn from_path<P>(path: P) -> errors::Result<Spec>
