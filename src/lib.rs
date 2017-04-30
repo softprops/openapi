@@ -11,7 +11,7 @@ use std::io::Read;
 use std::path::Path;
 
 mod schema;
-pub use schema::Spec;
+pub use schema::*;
 
 pub mod errors {
     error_chain!{
