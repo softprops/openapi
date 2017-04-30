@@ -57,7 +57,6 @@ pub struct Info {
     pub terms_of_service: Option<String>,
 }
 
-// note: this should really just be a BTreeMap<String, Operation>
 #[derive(Debug, Deserialize, Serialize, PartialEq)]
 pub struct Operations {
     #[serde(skip_serializing_if="Option::is_none")]
