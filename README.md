@@ -2,6 +2,8 @@
 
 > Rust crate for serializing and deserializing [open api](http://swagger.io/specification/) documents
 
+[Documentation]("https://softprops.github.io/openapi")
+
 ## install
 
 add the following to your `Cargo.toml` file
