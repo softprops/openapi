@@ -2,7 +2,7 @@
 
 > Rust crate for serializing and deserializing [open api](http://swagger.io/specification/) documents
 
-[Documentation]("https://softprops.github.io/openapi")
+[Documentation](https://softprops.github.io/openapi)
 
 ## install
 
