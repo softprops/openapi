@@ -1,3 +1,7 @@
+# 0.1.6 (unreleased)
+
+* expose security definition as an enum type
+
 # 0.1.5
 
 * expose other schema types as public interfaces

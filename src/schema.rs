@@ -122,9 +122,26 @@ pub struct Response {
 }
 
 #[derive(Debug, Deserialize, Serialize, PartialEq)]
-pub struct Security {
-    #[serde(rename="type")]
-    pub security_type: String, // todo:
+#[serde(tag = "type")]
+pub enum Security {
+    #[serde(rename="apiKey")]
+    ApiKey {
+        name: String,
+        #[serde(rename="in")]
+        location: String,
+    },
+    #[serde(rename="oauth2")]
+    Oauth2 {
+        flow: String,
+        #[serde(rename="authorizationUrl")]
+        authorization_url: String,
+        #[serde(rename="tokenUrl")]
+        #[serde(skip_serializing_if="Option::is_none")]
+        token_url: Option<String>,
+        scopes: BTreeMap<String, String>,
+    },
+    #[serde(rename="basic")]
+    Basic,
 }
 
 /// A [JSON schema](http://json-schema.org/) definition describing
@@ -154,4 +171,88 @@ pub struct Schema {
     pub items: Option<Box<Schema>>, // if scheme_type array (box is for recursion)
     #[serde(skip_serializing_if="Option::is_none")]
     pub properties: Option<BTreeMap<String, Schema>>, // implies object
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json;
+    use std::collections::BTreeMap;
+
+    #[test]
+    fn security_api_deserializes() {
+        let json = r#"{"type":"apiKey", "name":"foo", "in": "query"}"#;
+        assert_eq!(
+            serde_json::from_str::<Security>(&json).unwrap(),
+            Security::ApiKey {
+                name: "foo".into(),
+                location: "query".into(),
+            }
+        );
+    }
+
+    #[test]
+    fn security_api_serializes() {
+        let json = r#"{"type":"apiKey","name":"foo","in":"query"}"#;
+        assert_eq!(
+            serde_json::to_string(
+                &Security::ApiKey {
+                     name: "foo".into(),
+                     location: "query".into(),
+                 },
+            )
+                    .unwrap(),
+            json
+        );
+    }
+
+    #[test]
+    fn security_basic_deserializes() {
+        let json = r#"{"type":"basic"}"#;
+        assert_eq!(
+            serde_json::from_str::<Security>(&json).unwrap(),
+            Security::Basic
+        );
+    }
+
+    #[test]
+    fn security_basic_serializes() {
+        let json = r#"{"type":"basic"}"#;
+        assert_eq!(json, serde_json::to_string(&Security::Basic).unwrap());
+    }
+
+    #[test]
+    fn security_oauth_deserializes() {
+        let json = r#"{"type":"oauth2","flow":"implicit","authorizationUrl":"foo/bar","scopes":{"foo":"bar"}}"#;
+        let mut scopes = BTreeMap::new();
+        scopes.insert("foo".into(), "bar".into());
+        assert_eq!(
+            serde_json::from_str::<Security>(&json).unwrap(),
+            Security::Oauth2 {
+                flow: "implicit".into(),
+                authorization_url: "foo/bar".into(),
+                token_url: None,
+                scopes: scopes,
+            }
+        );
+    }
+
+    #[test]
+    fn security_oauth_serializes() {
+        let json = r#"{"type":"oauth2","flow":"implicit","authorizationUrl":"foo/bar","scopes":{"foo":"bar"}}"#;
+        let mut scopes = BTreeMap::new();
+        scopes.insert("foo".into(), "bar".into());
+        assert_eq!(
+            json,
+            serde_json::to_string(
+                &Security::Oauth2 {
+                     flow: "implicit".into(),
+                     authorization_url: "foo/bar".into(),
+                     token_url: None,
+                     scopes: scopes,
+                 },
+            )
+                    .unwrap()
+        );
+    }
 }

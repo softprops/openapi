@@ -82,6 +82,7 @@ pub fn to_json(spec: &Spec) -> errors::Result<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
     // Just tests if the deserialization does not blow up. But does not test correctness
     #[test]
     fn can_deserialize() {
