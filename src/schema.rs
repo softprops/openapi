@@ -23,6 +23,7 @@ pub struct Spec {
     pub produces: Option<Vec<String>>,
     #[serde(skip_serializing_if="Option::is_none")]
     pub parameters: Option<BTreeMap<String, Parameter>>,
+    /// mappings to http response codes or "default"
     #[serde(skip_serializing_if="Option::is_none")]
     pub responses: Option<BTreeMap<String, Response>>,
     #[serde(skip_serializing_if="Option::is_none")]
@@ -149,7 +150,7 @@ pub enum ParameterOrRef {
     },
     Ref {
         #[serde(rename="$ref")]
-        location: String,
+        ref_path: String,
     },
 }
 #[derive(Debug, Deserialize, Serialize, PartialEq)]
@@ -296,7 +297,7 @@ mod tests {
         let json = r#"{"$ref":"foo/bar"}"#;
         assert_eq!(
             serde_yaml::from_str::<ParameterOrRef>(&json).unwrap(),
-            ParameterOrRef::Ref { location: "foo/bar".into() }
+            ParameterOrRef::Ref { ref_path: "foo/bar".into() }
         );
     }
 
@@ -305,7 +306,7 @@ mod tests {
         let json = r#"{"$ref":"foo/bar"}"#;
         assert_eq!(
             json,
-            serde_json::to_string(&ParameterOrRef::Ref { location: "foo/bar".into() }).unwrap()
+            serde_json::to_string(&ParameterOrRef::Ref { ref_path: "foo/bar".into() }).unwrap()
         );
     }
 }
