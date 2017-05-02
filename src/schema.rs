@@ -6,8 +6,10 @@ pub struct Spec {
     /// version string
     pub swagger: String,
     pub info: Info,
-    pub paths: BTreeMap<String, Operations>, // / -> get -> op
-    pub definitions: BTreeMap<String, Schema>,
+    /// HTTP path to Operations mappings
+    pub paths: BTreeMap<String, Operations>,
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub definitions: Option<BTreeMap<String, Schema>>,
     #[serde(skip_serializing_if="Option::is_none")]
     pub schemes: Option<Vec<String>>,
     #[serde(skip_serializing_if="Option::is_none")]
@@ -70,7 +72,11 @@ pub struct Operations {
     #[serde(skip_serializing_if="Option::is_none")]
     pub delete: Option<Operation>,
     #[serde(skip_serializing_if="Option::is_none")]
-    pub parameters: Option<Vec<Parameter>>,
+    pub options: Option<Operation>,
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub head: Option<Operation>,
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub parameters: Option<Vec<ParameterOrRef>>,
 }
 
 #[derive(Debug, Deserialize, Serialize, PartialEq)]
@@ -92,7 +98,7 @@ pub struct Operation {
     pub operation_id: Option<String>,
     pub responses: BTreeMap<String, Response>,
     #[serde(skip_serializing_if="Option::is_none")]
-    pub parameters: Option<Vec<Parameter>>,
+    pub parameters: Option<Vec<ParameterOrRef>>,
 }
 
 #[derive(Debug, Deserialize, Serialize, PartialEq)]
@@ -121,6 +127,31 @@ pub struct Response {
     pub schema: Option<Schema>,
 }
 
+#[derive(Debug, Deserialize, Serialize, PartialEq)]
+#[serde(untagged)]
+pub enum ParameterOrRef {
+    Parameter {
+        name: String,
+        #[serde(rename="in")]
+        location: String,
+        #[serde(skip_serializing_if="Option::is_none")]
+        required: Option<bool>,
+        #[serde(skip_serializing_if="Option::is_none")]
+        schema: Option<Schema>,
+        #[serde(skip_serializing_if="Option::is_none")]
+        #[serde(rename="uniqueItems")]
+        unique_items: Option<bool>,
+        #[serde(skip_serializing_if="Option::is_none")]
+        #[serde(rename="type")]
+        param_type: Option<String>,
+        #[serde(skip_serializing_if="Option::is_none")]
+        format: Option<String>,
+    },
+    Ref {
+        #[serde(rename="$ref")]
+        location: String,
+    },
+}
 #[derive(Debug, Deserialize, Serialize, PartialEq)]
 #[serde(tag = "type")]
 pub enum Security {
@@ -168,22 +199,24 @@ pub struct Schema {
     #[serde(skip_serializing_if="Option::is_none")]
     pub required: Option<Vec<String>>,
     #[serde(skip_serializing_if="Option::is_none")]
-    pub items: Option<Box<Schema>>, // if scheme_type array (box is for recursion)
+    pub items: Option<Box<Schema>>,
+    // implies object
     #[serde(skip_serializing_if="Option::is_none")]
-    pub properties: Option<BTreeMap<String, Schema>>, // implies object
+    pub properties: Option<BTreeMap<String, Schema>>,
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
     use serde_json;
+    use serde_yaml;
     use std::collections::BTreeMap;
 
     #[test]
     fn security_api_deserializes() {
         let json = r#"{"type":"apiKey", "name":"foo", "in": "query"}"#;
         assert_eq!(
-            serde_json::from_str::<Security>(&json).unwrap(),
+            serde_yaml::from_str::<Security>(&json).unwrap(),
             Security::ApiKey {
                 name: "foo".into(),
                 location: "query".into(),
@@ -210,7 +243,7 @@ mod tests {
     fn security_basic_deserializes() {
         let json = r#"{"type":"basic"}"#;
         assert_eq!(
-            serde_json::from_str::<Security>(&json).unwrap(),
+            serde_yaml::from_str::<Security>(&json).unwrap(),
             Security::Basic
         );
     }
@@ -227,7 +260,7 @@ mod tests {
         let mut scopes = BTreeMap::new();
         scopes.insert("foo".into(), "bar".into());
         assert_eq!(
-            serde_json::from_str::<Security>(&json).unwrap(),
+            serde_yaml::from_str::<Security>(&json).unwrap(),
             Security::Oauth2 {
                 flow: "implicit".into(),
                 authorization_url: "foo/bar".into(),
@@ -253,6 +286,26 @@ mod tests {
                  },
             )
                     .unwrap()
+        );
+    }
+
+
+
+    #[test]
+    fn parameter_or_ref_deserializes_ref() {
+        let json = r#"{"$ref":"foo/bar"}"#;
+        assert_eq!(
+            serde_yaml::from_str::<ParameterOrRef>(&json).unwrap(),
+            ParameterOrRef::Ref { location: "foo/bar".into() }
+        );
+    }
+
+    #[test]
+    fn parameter_or_ref_serializes_pref() {
+        let json = r#"{"$ref":"foo/bar"}"#;
+        assert_eq!(
+            json,
+            serde_json::to_string(&ParameterOrRef::Ref { location: "foo/bar".into() }).unwrap()
         );
     }
 }

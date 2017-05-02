@@ -1,6 +1,7 @@
 # 0.1.6 (unreleased)
 
 * expose security definition as an enum type
+* expose schema types which define `parameters` with new `ParameterOrRef` type
 
 # 0.1.5
 
