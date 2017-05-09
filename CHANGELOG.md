@@ -2,6 +2,8 @@
 
 * expose security definition as an enum type
 * expose schema types which define `parameters` with new `ParameterOrRef` type
+* Adds License object
+* Adds Contact object
 
 # 0.1.5
 

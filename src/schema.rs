@@ -33,7 +33,6 @@ pub struct Spec {
     pub tags: Option<Vec<Tag>>,
 }
 
-
 #[derive(Debug, Deserialize, Serialize, PartialEq)]
 pub struct Tag {
     pub name: String,
@@ -53,11 +52,40 @@ pub struct ExternalDoc {
 
 #[derive(Debug, Deserialize, Serialize, PartialEq)]
 pub struct Info {
-    pub title: String,
-    pub version: String,
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub title: Option<String>,
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub description: Option<String>,
     #[serde(skip_serializing_if="Option::is_none")]
     #[serde(rename="termsOfService")]
     pub terms_of_service: Option<String>,
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub contact: Option<Contact>,
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub license: Option<License>,
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub version: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Serialize, PartialEq)]
+pub struct Contact {
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub name: Option<String>,
+    // TODO: Make sure the url is a valid URL
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub url: Option<String>,
+    // TODO: Make sure the email is a valid email
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub email: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Serialize, PartialEq)]
+pub struct License {
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub name: Option<String>,
+    // TODO: Make sure the url is a valid URL
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub url: Option<String>,
 }
 
 #[derive(Debug, Deserialize, Serialize, PartialEq)]
