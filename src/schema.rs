@@ -1,7 +1,7 @@
 use std::collections::BTreeMap;
 
 /// top level document
-#[derive(Debug, Deserialize, Serialize, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, PartialEq, Default)]
 pub struct Spec {
     /// version string
     pub swagger: String,
@@ -33,8 +33,7 @@ pub struct Spec {
     pub tags: Option<Vec<Tag>>,
 }
 
-
-#[derive(Debug, Deserialize, Serialize, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, PartialEq, Default)]
 pub struct Tag {
     pub name: String,
     #[serde(skip_serializing_if="Option::is_none")]
@@ -44,23 +43,52 @@ pub struct Tag {
     pub external_docs: Option<Vec<ExternalDoc>>,
 }
 
-#[derive(Debug, Deserialize, Serialize, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, PartialEq, Default)]
 pub struct ExternalDoc {
     pub url: String,
     #[serde(skip_serializing_if="Option::is_none")]
     pub description: Option<String>,
 }
 
-#[derive(Debug, Deserialize, Serialize, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, PartialEq, Default)]
 pub struct Info {
-    pub title: String,
-    pub version: String,
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub title: Option<String>,
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub description: Option<String>,
     #[serde(skip_serializing_if="Option::is_none")]
     #[serde(rename="termsOfService")]
     pub terms_of_service: Option<String>,
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub contact: Option<Contact>,
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub license: Option<License>,
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub version: Option<String>,
 }
 
-#[derive(Debug, Deserialize, Serialize, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, PartialEq, Default)]
+pub struct Contact {
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub name: Option<String>,
+    // TODO: Make sure the url is a valid URL
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub url: Option<String>,
+    // TODO: Make sure the email is a valid email
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub email: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Serialize, PartialEq, Default)]
+pub struct License {
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub name: Option<String>,
+    // TODO: Make sure the url is a valid URL
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub url: Option<String>,
+}
+
+#[derive(Debug, Deserialize, Serialize, PartialEq, Default)]
 pub struct Operations {
     #[serde(skip_serializing_if="Option::is_none")]
     pub get: Option<Operation>,
@@ -80,7 +108,7 @@ pub struct Operations {
     pub parameters: Option<Vec<ParameterOrRef>>,
 }
 
-#[derive(Debug, Deserialize, Serialize, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, PartialEq, Default)]
 pub struct Operation {
     #[serde(skip_serializing_if="Option::is_none")]
     pub summary: Option<String>,
@@ -102,7 +130,7 @@ pub struct Operation {
     pub parameters: Option<Vec<ParameterOrRef>>,
 }
 
-#[derive(Debug, Deserialize, Serialize, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, PartialEq, Default)]
 pub struct Parameter {
     pub name: String,
     #[serde(rename="in")]
@@ -121,7 +149,7 @@ pub struct Parameter {
     pub format: Option<String>,
 }
 
-#[derive(Debug, Deserialize, Serialize, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, PartialEq, Default)]
 pub struct Response {
     pub description: String,
     #[serde(skip_serializing_if="Option::is_none")]
@@ -180,7 +208,7 @@ pub enum Security {
 /// the shape and properties of an object.
 ///
 /// This may also contain a `$ref` to another definition
-#[derive(Debug, Deserialize, Serialize, PartialEq)]
+#[derive(Debug, Deserialize, Serialize, PartialEq, Default)]
 pub struct Schema {
     #[serde(skip_serializing_if="Option::is_none")]
     /// a [JSON reference](https://tools.ietf.org/html/draft-pbryan-zyp-json-ref-03)
