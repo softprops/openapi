@@ -5,6 +5,7 @@
 * Adds License object
 * Adds Contact object
 * Derives Default for all structs
+* Derives Clone for all structs
 
 # 0.1.5
 
