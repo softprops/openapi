@@ -6,6 +6,7 @@
 * Adds Contact object
 * Derives Default for all structs
 * Derives Clone for all structs
+* Changes the order of the output to be more similar to OpenAPI examples
 
 # 0.1.5
 

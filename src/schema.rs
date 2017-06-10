@@ -6,21 +6,23 @@ pub struct Spec {
     /// version string
     pub swagger: String,
     pub info: Info,
-    /// HTTP path to Operations mappings
-    pub paths: BTreeMap<String, Operations>,
-    #[serde(skip_serializing_if="Option::is_none")]
-    pub definitions: Option<BTreeMap<String, Schema>>,
-    #[serde(skip_serializing_if="Option::is_none")]
-    pub schemes: Option<Vec<String>>,
     #[serde(skip_serializing_if="Option::is_none")]
     pub host: Option<String>,
     #[serde(skip_serializing_if="Option::is_none")]
     #[serde(rename="basePath")]
     pub base_path: Option<String>,
     #[serde(skip_serializing_if="Option::is_none")]
+    pub schemes: Option<Vec<String>>,
+    #[serde(skip_serializing_if="Option::is_none")]
     pub consumes: Option<Vec<String>>,
     #[serde(skip_serializing_if="Option::is_none")]
     pub produces: Option<Vec<String>>,
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub tags: Option<Vec<Tag>>,
+    /// HTTP path to Operations mappings
+    pub paths: BTreeMap<String, Operations>,
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub definitions: Option<BTreeMap<String, Schema>>,
     #[serde(skip_serializing_if="Option::is_none")]
     pub parameters: Option<BTreeMap<String, Parameter>>,
     /// mappings to http response codes or "default"
@@ -29,8 +31,6 @@ pub struct Spec {
     #[serde(skip_serializing_if="Option::is_none")]
     #[serde(rename="securityDefinitions")]
     pub security_definitions: Option<BTreeMap<String, Security>>,
-    #[serde(skip_serializing_if="Option::is_none")]
-    pub tags: Option<Vec<Tag>>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
