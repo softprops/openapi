@@ -31,6 +31,8 @@ pub struct Spec {
     #[serde(skip_serializing_if="Option::is_none")]
     #[serde(rename="securityDefinitions")]
     pub security_definitions: Option<BTreeMap<String, Security>>,
+    #[serde(skip_serializing_if="Option::is_none")]
+    pub security: Option<Vec<BTreeMap<String, Vec<String>>>>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
