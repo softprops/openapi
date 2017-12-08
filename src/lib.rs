@@ -2,7 +2,8 @@
 //!
 //! # Examples
 //!
-//! Typical use deserialing an existing to a persisted spec to rust form of visa versa
+//! Typical use deserialing an existing to a persisted spec to rust form or
+//! visa versa
 //!
 //! The hyper client should be configured with tls.
 //!
@@ -19,9 +20,11 @@
 //!
 //! # Errors
 //!
-//! Operations typically result in a `openapi::Result` Type which is an alias for Rust's
+//! Operations typically result in a `openapi::Result` Type which is an alias
+//! for Rust's
 //! built-in Result with the Err Type fixed to the
-//! [openapi::errors::Error](errors/struct.Error.html) enum type. These are provided
+//! [openapi::errors::Error](errors/struct.Error.html) enum type. These are
+//! provided
 //! using [error_chain](https://github.com/brson/error-chain) crate so their
 //! shape and behavior should be consistent and familiar to existing
 //! error_chain users.
