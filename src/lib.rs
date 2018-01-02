@@ -89,7 +89,7 @@ mod tests {
     // Just tests if the deserialization does not blow up. But does not test correctness
     #[test]
     fn can_deserialize() {
-        for entry in fs::read_dir("data/").unwrap() {
+        for entry in fs::read_dir("data/v2").unwrap() {
             let entry = entry.unwrap();
             let path = entry.path();
             // cargo test -- --nocapture to see this message
