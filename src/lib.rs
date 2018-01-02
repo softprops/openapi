@@ -41,8 +41,8 @@ use std::fs;
 use std::io::Read;
 use std::path::Path;
 
-mod schema;
-pub use schema::*;
+pub mod v2;
+use v2::*;
 
 /// errors that openapi functions may return
 pub mod errors {
@@ -56,8 +56,20 @@ pub mod errors {
 }
 pub use errors::{Result, ResultExt};
 
+/// Supported versions of the OpenApi.
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
+#[serde(untagged)]
+pub enum OpenApi {
+    /// Version 2.0 of the OpenApi specification.
+    ///
+    /// Refer to the official
+    /// [specification](https://github.com/OAI/OpenAPI-Specification/blob/0dd79f6/versions/2.0.md)
+    /// for more information.
+    V2(v2::Spec),
+}
+
 /// deserialize an open api spec from a path
-pub fn from_path<P>(path: P) -> errors::Result<Spec>
+pub fn from_path<P>(path: P) -> errors::Result<OpenApi>
 where
     P: AsRef<Path>,
 {
@@ -65,20 +77,20 @@ where
 }
 
 /// deserialize an open api spec from type which implements Read
-pub fn from_reader<R>(read: R) -> errors::Result<Spec>
+pub fn from_reader<R>(read: R) -> errors::Result<OpenApi>
 where
     R: Read,
 {
-    Ok(serde_yaml::from_reader::<R, Spec>(read)?)
+    Ok(serde_yaml::from_reader::<R, OpenApi>(read)?)
 }
 
 /// serialize to a yaml string
-pub fn to_yaml(spec: &Spec) -> errors::Result<String> {
+pub fn to_yaml(spec: &OpenApi) -> errors::Result<String> {
     Ok(serde_yaml::to_string(spec)?)
 }
 
 /// serialize to a json string
-pub fn to_json(spec: &Spec) -> errors::Result<String> {
+pub fn to_json(spec: &OpenApi) -> errors::Result<String> {
     Ok(serde_json::to_string_pretty(spec)?)
 }
 
@@ -89,7 +101,7 @@ mod tests {
     // Just tests if the deserialization does not blow up. But does not test correctness
     #[test]
     fn can_deserialize() {
-        for entry in fs::read_dir("data/").unwrap() {
+        for entry in fs::read_dir("data/v2").unwrap() {
             let entry = entry.unwrap();
             let path = entry.path();
             // cargo test -- --nocapture to see this message
