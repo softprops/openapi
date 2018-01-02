@@ -41,8 +41,8 @@ use std::fs;
 use std::io::Read;
 use std::path::Path;
 
-mod schema;
-pub use schema::*;
+pub mod v2;
+use v2::*;
 
 /// errors that openapi functions may return
 pub mod errors {
