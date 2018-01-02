@@ -36,13 +36,19 @@ extern crate serde_derive;
 extern crate serde;
 extern crate serde_json;
 extern crate serde_yaml;
+extern crate url;
+extern crate url_serde;
+extern crate semver;
 
 use std::fs;
 use std::io::Read;
 use std::path::Path;
 
 pub mod v2;
-use v2::*;
+pub mod v3_0;
+
+const MINIMUM_OPENAPI30_VERSION: &str = ">= 3.0";
+
 
 /// errors that openapi functions may return
 pub mod errors {
@@ -51,6 +57,14 @@ pub mod errors {
             Io(::std::io::Error);
             Yaml(::serde_yaml::Error);
             Serialize(::serde_json::Error);
+            SemVerError(::semver::SemVerError);
+        }
+
+        errors {
+            UnsupportedSpecFileVersion(version: ::semver::Version) {
+                description("Unsupported spec file version")
+                display("Unsupported spec file version ({}). Expected {}", version, ::MINIMUM_OPENAPI30_VERSION)
+            }
         }
     }
 }
@@ -66,6 +80,14 @@ pub enum OpenApi {
     /// [specification](https://github.com/OAI/OpenAPI-Specification/blob/0dd79f6/versions/2.0.md)
     /// for more information.
     V2(v2::Spec),
+
+    /// Version 3.0.1 of the OpenApi specification.
+    ///
+    /// Refer to the official
+    /// [specification](https://github.com/OAI/OpenAPI-Specification/blob/0dd79f6/versions/3.0.1.md)
+    /// for more information.
+    #[allow(non_camel_case_types)]
+    V3_0(v3_0::Spec),
 }
 
 /// deserialize an open api spec from a path
