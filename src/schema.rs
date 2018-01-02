@@ -44,7 +44,7 @@ pub struct Spec {
     pub tags: Option<Vec<Tag>>,
     /// Relative paths to the individual endpoints. They must be relative
     /// to the 'basePath'.
-    pub paths: BTreeMap<String, Operations>,
+    pub paths: BTreeMap<String, PathItem>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub definitions: Option<BTreeMap<String, Schema>>,
     #[serde(skip_serializing_if = "Option::is_none")]
