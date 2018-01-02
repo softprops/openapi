@@ -119,6 +119,87 @@ pub fn to_json(spec: &OpenApi) -> errors::Result<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::fs::File;
+    use std::io::Write;
+
+    /// Helper function for reading a file to string.
+    fn read_file<P>(path: P) -> String
+    where
+        P: AsRef<Path>,
+    {
+        let mut f = File::open(path).unwrap();
+        let mut content = String::new();
+        f.read_to_string(&mut content).unwrap();
+        content
+    }
+
+    /// Helper function to write string to file.
+    fn write_to_file<P>(path: P, filename: &str, data: &str)
+    where
+        P: AsRef<Path> + std::fmt::Debug,
+    {
+        println!("    Saving string to {:?}...", path);
+        std::fs::create_dir_all(&path).unwrap();
+        let full_filename = path.as_ref().to_path_buf().join(filename);
+        let mut f = File::create(&full_filename).unwrap();
+        f.write_all(data.as_bytes()).unwrap();
+    }
+
+    /// Convert a YAML `&str` to a JSON `String`.
+    fn convert_yaml_str_to_json(yaml_str: &str) -> String {
+        let yaml: serde_yaml::Value = serde_yaml::from_str(yaml_str).unwrap();
+        let json: serde_json::Value = serde_yaml::from_value(yaml).unwrap();
+        serde_json::to_string_pretty(&json).unwrap()
+    }
+
+    /// Deserialize and re-serialize the input file to a JSON string through two different
+    /// paths, comparing the result.
+    /// 1. File -> `String` -> `serde_yaml::Value` -> `serde_json::Value` -> `String`
+    /// 2. File -> `Spec` -> `serde_json::Value` -> `String`
+    /// Both conversion of `serde_json::Value` -> `String` are done
+    /// using `serde_json::to_string_pretty`.
+    /// Since the first conversion is independant of the current crate (and only
+    /// uses serde's json and yaml support), no information should be lost in the final
+    /// JSON string. The second conversion goes through our `OpenApi`, so the final JSON
+    /// string is a representation of _our_ implementation.
+    /// By comparing those two JSON conversions, we can validate our implementation.
+    fn compare_spec_through_json(input_file: &Path, save_path_base: &Path) -> (String, String, String) {
+        // First conversion:
+        //     File -> `String` -> `serde_yaml::Value` -> `serde_json::Value` -> `String`
+
+        // Read the original file to string
+        let spec_yaml_str = read_file(&input_file);
+        // Convert YAML string to JSON string
+        let spec_json_str = convert_yaml_str_to_json(&spec_yaml_str);
+
+        // Second conversion:
+        //     File -> `Spec` -> `serde_json::Value` -> `String`
+
+        // Parse the input file
+        let parsed_spec = from_path(&input_file).unwrap();
+        // Convert to serde_json::Value
+        let parsed_spec_json: serde_json::Value = serde_json::to_value(parsed_spec).unwrap();
+        // Convert to a JSON string
+        let parsed_spec_json_str: String = serde_json::to_string_pretty(&parsed_spec_json).unwrap();
+
+        // Save JSON strings to file
+        let api_filename = input_file.file_name()
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .replace(".yaml", ".json");
+
+        let mut save_path = save_path_base.to_path_buf();
+        save_path.push("yaml_to_json");
+        write_to_file(&save_path, &api_filename, &spec_json_str);
+
+        let mut save_path = save_path_base.to_path_buf();
+        save_path.push("yaml_to_spec_to_json");
+        write_to_file(&save_path, &api_filename, &parsed_spec_json_str);
+
+        // Return the JSON filename and the two JSON strings
+        (api_filename, parsed_spec_json_str, spec_json_str)
+    }
 
     // Just tests if the deserialization does not blow up. But does not test correctness
     #[test]
@@ -130,5 +211,65 @@ mod tests {
             println!("Testing if {:?} is deserializable", path);
             from_path(path).unwrap();
         }
+    }
+
+    #[test]
+    fn can_deserialize_and_reserialize_v2() {
+        let save_path_base: std::path::PathBuf = [
+            "target",
+            "tests",
+            "can_deserialize_and_reserialize_v2",
+        ].iter()
+            .collect();
+        let mut invalid_diffs = Vec::new();
+
+        for entry in fs::read_dir("data/v2").unwrap() {
+            let entry = entry.unwrap();
+            let path = entry.path();
+
+            println!("Testing if {:?} is deserializable", path);
+
+            let (api_filename, parsed_spec_json_str, spec_json_str) =
+                compare_spec_through_json(&path, &save_path_base);
+
+            if parsed_spec_json_str != spec_json_str {
+                invalid_diffs.push((api_filename, parsed_spec_json_str, spec_json_str));
+            }
+        }
+
+        for invalid_diff in &invalid_diffs {
+            println!("File {} failed JSON comparison!", invalid_diff.0);
+        }
+        assert!(invalid_diffs.len() == 0);
+    }
+
+    #[test]
+    fn can_deserialize_and_reserialize_v3() {
+        let save_path_base: std::path::PathBuf = [
+            "target",
+            "tests",
+            "can_deserialize_and_reserialize_v3",
+        ].iter()
+            .collect();
+        let mut invalid_diffs = Vec::new();
+
+        for entry in fs::read_dir("data/v3.0").unwrap() {
+            let entry = entry.unwrap();
+            let path = entry.path();
+
+            println!("Testing if {:?} is deserializable", path);
+
+            let (api_filename, parsed_spec_json_str, spec_json_str) =
+                compare_spec_through_json(&path, &save_path_base);
+
+            if parsed_spec_json_str != spec_json_str {
+                invalid_diffs.push((api_filename, parsed_spec_json_str, spec_json_str));
+            }
+        }
+
+        for invalid_diff in &invalid_diffs {
+            println!("File {} failed JSON comparison!", invalid_diff.0);
+        }
+        assert!(invalid_diffs.len() == 0);
     }
 }
