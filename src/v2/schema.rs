@@ -165,6 +165,59 @@ pub struct Operation {
     pub parameters: Option<Vec<ParameterOrRef>>,
 }
 
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
+#[serde(untagged)]
+pub enum PropertyDefault {
+    Integer(i32),
+    Boolean(bool),
+    String(String),
+}
+
+impl From<i32> for PropertyDefault {
+    fn from(item: i32) -> Self {
+        PropertyDefault::Integer(item)
+    }
+}
+
+impl From<bool> for PropertyDefault {
+    fn from(item: bool) -> Self {
+        PropertyDefault::Boolean(item)
+    }
+}
+
+impl From<String> for PropertyDefault {
+    fn from(item: String) -> Self {
+        PropertyDefault::String(item)
+    }
+}
+
+impl From<PropertyDefault> for i32 {
+    fn from(item: PropertyDefault) -> Self {
+        match item {
+            PropertyDefault::Integer(item) => item,
+            _ => 1,
+        }
+    }
+}
+
+impl From<PropertyDefault> for bool {
+    fn from(item: PropertyDefault) -> Self {
+        match item {
+            PropertyDefault::Boolean(item) => item,
+            _ => true,
+        }
+    }
+}
+
+impl From<PropertyDefault> for String {
+    fn from(item: PropertyDefault) -> Self {
+        match item {
+            PropertyDefault::String(item) => item,
+            _ => "".to_string(),
+        }
+    }
+}
+
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct Parameter {
@@ -184,6 +237,13 @@ pub struct Parameter {
     pub format: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    //#[serde(deserialize_with = "deserialize_default_param")]
+    pub default: Option<PropertyDefault>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub minimum: Option<i32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub maximum: Option<i32>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
@@ -223,11 +283,19 @@ pub enum ParameterOrRef {
         /// of use.  GitHub Flavored Markdown is allowed.
         #[serde(skip_serializing_if = "Option::is_none")]
         description: Option<String>,
+        /// The default value of this parameter.
+        /// Deser from String because it can be any type.
+        #[serde(skip_serializing_if = "Option::is_none")]
+        //#[serde(deserialize_with = "deserialize_default_param")]
+        default: Option<PropertyDefault>,
+        /// The minimum valid value for this parameter.
+        #[serde(skip_serializing_if = "Option::is_none")]
+        minimum: Option<i32>,
+        /// The maximum valid value for this parameter.
+        #[serde(skip_serializing_if = "Option::is_none")]
+        maximum: Option<i32>,
         // collectionFormat: ???
-        // default: ???
-        // maximum ?
         // exclusiveMaximum ??
-        // minimum ??
         // exclusiveMinimum ??
         // maxLength ??
         // minLength ??
@@ -243,6 +311,7 @@ pub enum ParameterOrRef {
         ref_path: String,
     },
 }
+
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 #[serde(tag = "type")]
 pub enum Security {
