@@ -244,6 +244,9 @@ pub struct Parameter {
     pub minimum: Option<i32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub maximum: Option<i32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "enum")]
+    pub enum_values: Option<Vec<String>>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
@@ -294,6 +297,9 @@ pub enum ParameterOrRef {
         /// The maximum valid value for this parameter.
         #[serde(skip_serializing_if = "Option::is_none")]
         maximum: Option<i32>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        #[serde(rename = "enum")]
+        enum_values: Option<Vec<String>>,
         // collectionFormat: ???
         // exclusiveMaximum ??
         // exclusiveMinimum ??
