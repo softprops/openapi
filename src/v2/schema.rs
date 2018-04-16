@@ -158,6 +158,7 @@ pub struct Operation {
     pub schemes: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tags: Option<Vec<String>>,
+    #[serde(rename = "operationId")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub operation_id: Option<String>,
     pub responses: BTreeMap<String, Response>,
