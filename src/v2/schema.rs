@@ -144,7 +144,7 @@ pub struct PathItem {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
-#[serde(rename_all = "lowercase")]
+#[serde(rename_all = "camelCase")]
 pub struct Operation {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub summary: Option<String>,
@@ -158,7 +158,6 @@ pub struct Operation {
     pub schemes: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tags: Option<Vec<String>>,
-    #[serde(rename = "operationId")]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub operation_id: Option<String>,
     pub responses: BTreeMap<String, Response>,
@@ -241,10 +240,30 @@ pub struct Parameter {
     #[serde(skip_serializing_if = "Option::is_none")]
     //#[serde(deserialize_with = "deserialize_default_param")]
     pub default: Option<PropertyDefault>,
+    /// The minimum valid value for this parameter.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub minimum: Option<i32>,
+    /// When set to true the value of the minimum property is not part of the range
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub exclusive_minimum: Option<bool>,
+    /// The maximum valid value for this parameter.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub maximum: Option<i32>,
+    /// When set to true the value of the maximum property is not part of the range
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub exclusive_maximum: Option<bool>,
+    /// The maximum number of characters of a String
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_length: Option<i32>,
+    /// The minimum number of characters of a String
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub min_length: Option<i32>,
+    /// The maximum number of items of an array
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_items: Option<i32>,
+    /// The minimmum number of items of an array
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub min_items: Option<i32>,
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "enum")]
     pub enum_values: Option<Vec<String>>,
@@ -260,6 +279,7 @@ pub struct Response {
 // todo: support x-* fields
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 #[serde(untagged)]
+#[serde(rename_all = "camelCase")]
 pub enum ParameterOrRef {
     /// both bodyParameter and nonBodyParameter in one for now
     #[derive(Default)]
@@ -297,25 +317,25 @@ pub enum ParameterOrRef {
         minimum: Option<i32>,
         /// When set to true the value of the minimum property is not part of the range
         #[serde(skip_serializing_if = "Option::is_none")]
-        exclusiveMinimum: Option<bool>,
+        exclusive_minimum: Option<bool>,
         /// The maximum valid value for this parameter.
         #[serde(skip_serializing_if = "Option::is_none")]
         maximum: Option<i32>,
         /// When set to true the value of the maximum property is not part of the range
         #[serde(skip_serializing_if = "Option::is_none")]
-        exclusiveMaximum: Option<bool>,
+        exclusive_maximum: Option<bool>,
         /// The maximum number of characters of a String
         #[serde(skip_serializing_if = "Option::is_none")]
-        maxLength: Option<i32>,
+        max_length: Option<i32>,
         /// The minimum number of characters of a String
         #[serde(skip_serializing_if = "Option::is_none")]
-        minLength: Option<i32>,
+        min_length: Option<i32>,
         /// The maximum number of items of an array
         #[serde(skip_serializing_if = "Option::is_none")]
-        maxItems: Option<i32>,
+        max_items: Option<i32>,
         /// The minimmum number of items of an array
         #[serde(skip_serializing_if = "Option::is_none")]
-        minItems: Option<i32>,
+        min_items: Option<i32>,
         #[serde(skip_serializing_if = "Option::is_none")]
         #[serde(rename = "enum")]
         enum_values: Option<Vec<String>>,
