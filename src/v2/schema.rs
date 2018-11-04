@@ -295,20 +295,32 @@ pub enum ParameterOrRef {
         /// The minimum valid value for this parameter.
         #[serde(skip_serializing_if = "Option::is_none")]
         minimum: Option<i32>,
+        /// When set to true the value of the minimum property is not part of the range
+        #[serde(skip_serializing_if = "Option::is_none")]
+        exclusiveMinimum: Option<bool>,
         /// The maximum valid value for this parameter.
         #[serde(skip_serializing_if = "Option::is_none")]
         maximum: Option<i32>,
+        /// When set to true the value of the maximum property is not part of the range
+        #[serde(skip_serializing_if = "Option::is_none")]
+        exclusiveMaximum: Option<bool>,
+        /// The maximum number of characters of a String
+        #[serde(skip_serializing_if = "Option::is_none")]
+        maxLength: Option<i32>,
+        /// The minimum number of characters of a String
+        #[serde(skip_serializing_if = "Option::is_none")]
+        minLength: Option<i32>,
+        /// The maximum number of items of an array
+        #[serde(skip_serializing_if = "Option::is_none")]
+        maxItems: Option<i32>,
+        /// The minimmum number of items of an array
+        #[serde(skip_serializing_if = "Option::is_none")]
+        minItems: Option<i32>,
         #[serde(skip_serializing_if = "Option::is_none")]
         #[serde(rename = "enum")]
         enum_values: Option<Vec<String>>,
         // collectionFormat: ???
-        // exclusiveMaximum ??
-        // exclusiveMinimum ??
-        // maxLength ??
-        // minLength ??
         // pattern ??
-        // maxItems ??
-        // minItems ??
         // enum ??
         // multipleOf ??
         // allowEmptyValue ( for query / body params )
