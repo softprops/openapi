@@ -7,6 +7,7 @@
 * Derives Default for all structs
 * Derives Clone for all structs
 * Changes the order of the output to be more similar to OpenAPI examples
+* Adds lots of properties related to minimum and maximum values
 
 # 0.1.5
 
