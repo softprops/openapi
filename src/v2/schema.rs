@@ -144,7 +144,7 @@ pub struct PathItem {
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
-#[serde(rename_all = "lowercase")]
+#[serde(rename_all = "camelCase")]
 pub struct Operation {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub summary: Option<String>,
@@ -165,10 +165,66 @@ pub struct Operation {
     pub parameters: Option<Vec<ParameterOrRef>>,
 }
 
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
+#[serde(untagged)]
+pub enum PropertyDefault {
+    Integer(i32),
+    Boolean(bool),
+    String(String),
+}
+
+impl From<i32> for PropertyDefault {
+    fn from(item: i32) -> Self {
+        PropertyDefault::Integer(item)
+    }
+}
+
+impl From<bool> for PropertyDefault {
+    fn from(item: bool) -> Self {
+        PropertyDefault::Boolean(item)
+    }
+}
+
+impl From<String> for PropertyDefault {
+    fn from(item: String) -> Self {
+        PropertyDefault::String(item)
+    }
+}
+
+impl From<PropertyDefault> for i32 {
+    fn from(item: PropertyDefault) -> Self {
+        match item {
+            PropertyDefault::Integer(item) => item,
+            _ => Default::default(),
+        }
+    }
+}
+
+impl From<PropertyDefault> for bool {
+    fn from(item: PropertyDefault) -> Self {
+        match item {
+            PropertyDefault::Boolean(item) => item,
+            _ => Default::default(),
+        }
+    }
+}
+
+impl From<PropertyDefault> for String {
+    fn from(item: PropertyDefault) -> Self {
+        match item {
+            PropertyDefault::String(item) => item,
+            _ => Default::default(),
+        }
+    }
+}
+
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
 pub struct Parameter {
+    /// The name of the parameter.
     pub name: String,
+    /// values depend on parameter type
+    /// may be `header`, `query`, 'path`, `formData`
     #[serde(rename = "in")]
     pub location: String,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -177,13 +233,52 @@ pub struct Parameter {
     pub schema: Option<Schema>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub unique_items: Option<bool>,
+    /// string, number, boolean, integer, array, file ( only for formData )
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "type")]
     pub param_type: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub format: Option<String>,
+    /// A brief description of the parameter. This could contain examples
+    /// of use.  GitHub Flavored Markdown is allowed.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub default: Option<PropertyDefault>,
+    /// The minimum valid value for this parameter.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub minimum: Option<i32>,
+    /// When set to true the value of the minimum property is not part of the range
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub exclusive_minimum: Option<bool>,
+    /// The maximum valid value for this parameter.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub maximum: Option<i32>,
+    /// When set to true the value of the maximum property is not part of the range
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub exclusive_maximum: Option<bool>,
+    /// The maximum number of characters of a String
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_length: Option<i32>,
+    /// The minimum number of characters of a String
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub min_length: Option<i32>,
+    /// The maximum number of items of an array
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_items: Option<i32>,
+    /// The minimmum number of items of an array
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub min_items: Option<i32>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    // Enum of possible values for this parameter
+    #[serde(rename = "enum")]
+    pub enum_values: Option<Vec<String>>,
+    // Pattern for the string of this parameter
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub pattern: Option<String>,
+    // collectionFormat: ???
+    // multipleOf ??
+    // allowEmptyValue ( for query / body params )
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
@@ -196,53 +291,16 @@ pub struct Response {
 // todo: support x-* fields
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 #[serde(untagged)]
+#[serde(rename_all = "camelCase")]
 pub enum ParameterOrRef {
     /// both bodyParameter and nonBodyParameter in one for now
-    #[derive(Default)]
-    Parameter {
-        /// The name of the parameter.
-        name: String,
-        /// values depend on parameter type
-        /// may be `header`, `query`, 'path`, `formData`
-        #[serde(rename = "in")]
-        location: String,
-        #[serde(skip_serializing_if = "Option::is_none")]
-        required: Option<bool>,
-        #[serde(skip_serializing_if = "Option::is_none")]
-        schema: Option<Schema>,
-        #[serde(skip_serializing_if = "Option::is_none")]
-        #[serde(rename = "uniqueItems")]
-        unique_items: Option<bool>,
-        /// string, number, boolean, integer, array, file ( only for formData )
-        #[serde(skip_serializing_if = "Option::is_none")]
-        #[serde(rename = "type")]
-        param_type: Option<String>,
-        #[serde(skip_serializing_if = "Option::is_none")]
-        format: Option<String>,
-        /// A brief description of the parameter. This could contain examples
-        /// of use.  GitHub Flavored Markdown is allowed.
-        #[serde(skip_serializing_if = "Option::is_none")]
-        description: Option<String>,
-        // collectionFormat: ???
-        // default: ???
-        // maximum ?
-        // exclusiveMaximum ??
-        // minimum ??
-        // exclusiveMinimum ??
-        // maxLength ??
-        // minLength ??
-        // pattern ??
-        // maxItems ??
-        // minItems ??
-        // enum ??
-        // multipleOf ??
-        // allowEmptyValue ( for query / body params )
-    },
+    Parameter(Parameter),
     Ref {
         #[serde(rename = "$ref")]
         ref_path: String,
     },
 }
+
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 #[serde(tag = "type")]
 pub enum Security {
