@@ -362,28 +362,28 @@ pub struct Operation {
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
 pub struct Parameter {
     /// The name of the parameter.
-    name: String,
+    pub name: String,
     /// values depend on parameter type
     /// may be `header`, `query`, 'path`, `formData`
     #[serde(rename = "in")]
-    location: String,
+    pub location: String,
     #[serde(skip_serializing_if = "Option::is_none")]
-    required: Option<bool>,
+    pub required: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    schema: Option<Schema>,
+    pub schema: Option<Schema>,
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "uniqueItems")]
-    unique_items: Option<bool>,
+    pub unique_items: Option<bool>,
     /// string, number, boolean, integer, array, file ( only for formData )
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "type")]
-    param_type: Option<String>,
+    pub param_type: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    format: Option<String>,
+    pub format: Option<String>,
     /// A brief description of the parameter. This could contain examples
     /// of use.  GitHub Flavored Markdown is allowed.
     #[serde(skip_serializing_if = "Option::is_none")]
-    description: Option<String>,
+    pub description: Option<String>,
     // collectionFormat: ???
     // default: ???
     // maximum ?
@@ -575,22 +575,22 @@ pub struct Header {
     // FIXME: Is the third change properly implemented?
     // FIXME: Merge `ObjectOrReference<Header>::Reference` and `ParameterOrRef::Reference`
     #[serde(skip_serializing_if = "Option::is_none")]
-    required: Option<bool>,
+    pub required: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    schema: Option<Schema>,
+    pub schema: Option<Schema>,
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "uniqueItems")]
-    unique_items: Option<bool>,
+    pub unique_items: Option<bool>,
     /// string, number, boolean, integer, array, file ( only for formData )
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "type")]
-    param_type: Option<String>,
+    pub param_type: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    format: Option<String>,
+    pub format: Option<String>,
     /// A brief description of the parameter. This could contain examples
     /// of use.  GitHub Flavored Markdown is allowed.
     #[serde(skip_serializing_if = "Option::is_none")]
-    description: Option<String>,
+    pub description: Option<String>,
     // collectionFormat: ???
     // default: ???
     // maximum ?
