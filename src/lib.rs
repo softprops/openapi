@@ -29,46 +29,18 @@
 //! shape and behavior should be consistent and familiar to existing
 //! error_chain users.
 //!
-#[macro_use]
-extern crate error_chain;
-#[macro_use]
-extern crate serde_derive;
-extern crate serde;
-extern crate serde_json;
-extern crate serde_yaml;
-extern crate url;
-extern crate url_serde;
-extern crate semver;
+use serde::{Deserialize, Serialize};
+use std::{fs::File, io::Read, path::Path, result::Result as StdResult};
 
-use std::fs;
-use std::io::Read;
-use std::path::Path;
-
+pub mod error;
 pub mod v2;
 pub mod v3_0;
 
+pub use error::Error;
+
 const MINIMUM_OPENAPI30_VERSION: &str = ">= 3.0";
 
-
-/// errors that openapi functions may return
-pub mod errors {
-    error_chain!{
-        foreign_links {
-            Io(::std::io::Error);
-            Yaml(::serde_yaml::Error);
-            Serialize(::serde_json::Error);
-            SemVerError(::semver::SemVerError);
-        }
-
-        errors {
-            UnsupportedSpecFileVersion(version: ::semver::Version) {
-                description("Unsupported spec file version")
-                display("Unsupported spec file version ({}). Expected {}", version, ::MINIMUM_OPENAPI30_VERSION)
-            }
-        }
-    }
-}
-pub use errors::{Result, ResultExt};
+pub type Result<T> = StdResult<T, Error>;
 
 /// Supported versions of the OpenApi.
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
@@ -91,15 +63,15 @@ pub enum OpenApi {
 }
 
 /// deserialize an open api spec from a path
-pub fn from_path<P>(path: P) -> errors::Result<OpenApi>
+pub fn from_path<P>(path: P) -> Result<OpenApi>
 where
     P: AsRef<Path>,
 {
-    from_reader(fs::File::open(path)?)
+    from_reader(File::open(path)?)
 }
 
 /// deserialize an open api spec from type which implements Read
-pub fn from_reader<R>(read: R) -> errors::Result<OpenApi>
+pub fn from_reader<R>(read: R) -> Result<OpenApi>
 where
     R: Read,
 {
@@ -107,20 +79,22 @@ where
 }
 
 /// serialize to a yaml string
-pub fn to_yaml(spec: &OpenApi) -> errors::Result<String> {
+pub fn to_yaml(spec: &OpenApi) -> Result<String> {
     Ok(serde_yaml::to_string(spec)?)
 }
 
 /// serialize to a json string
-pub fn to_json(spec: &OpenApi) -> errors::Result<String> {
+pub fn to_json(spec: &OpenApi) -> Result<String> {
     Ok(serde_json::to_string_pretty(spec)?)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::fs::File;
-    use std::io::Write;
+    use std::{
+        fs::{self, File},
+        io::Write,
+    };
 
     /// Helper function for reading a file to string.
     fn read_file<P>(path: P) -> String
@@ -134,8 +108,11 @@ mod tests {
     }
 
     /// Helper function to write string to file.
-    fn write_to_file<P>(path: P, filename: &str, data: &str)
-    where
+    fn write_to_file<P>(
+        path: P,
+        filename: &str,
+        data: &str,
+    ) where
         P: AsRef<Path> + std::fmt::Debug,
     {
         println!("    Saving string to {:?}...", path);
@@ -163,7 +140,10 @@ mod tests {
     /// JSON string. The second conversion goes through our `OpenApi`, so the final JSON
     /// string is a representation of _our_ implementation.
     /// By comparing those two JSON conversions, we can validate our implementation.
-    fn compare_spec_through_json(input_file: &Path, save_path_base: &Path) -> (String, String, String) {
+    fn compare_spec_through_json(
+        input_file: &Path,
+        save_path_base: &Path,
+    ) -> (String, String, String) {
         // First conversion:
         //     File -> `String` -> `serde_yaml::Value` -> `serde_json::Value` -> `String`
 
@@ -183,7 +163,8 @@ mod tests {
         let parsed_spec_json_str: String = serde_json::to_string_pretty(&parsed_spec_json).unwrap();
 
         // Save JSON strings to file
-        let api_filename = input_file.file_name()
+        let api_filename = input_file
+            .file_name()
             .unwrap()
             .to_str()
             .unwrap()
@@ -215,12 +196,10 @@ mod tests {
 
     #[test]
     fn can_deserialize_and_reserialize_v2() {
-        let save_path_base: std::path::PathBuf = [
-            "target",
-            "tests",
-            "can_deserialize_and_reserialize_v2",
-        ].iter()
-            .collect();
+        let save_path_base: std::path::PathBuf =
+            ["target", "tests", "can_deserialize_and_reserialize_v2"]
+                .iter()
+                .collect();
         let mut invalid_diffs = Vec::new();
 
         for entry in fs::read_dir("data/v2").unwrap() {
@@ -245,12 +224,10 @@ mod tests {
 
     #[test]
     fn can_deserialize_and_reserialize_v3() {
-        let save_path_base: std::path::PathBuf = [
-            "target",
-            "tests",
-            "can_deserialize_and_reserialize_v3",
-        ].iter()
-            .collect();
+        let save_path_base: std::path::PathBuf =
+            ["target", "tests", "can_deserialize_and_reserialize_v3"]
+                .iter()
+                .collect();
         let mut invalid_diffs = Vec::new();
 
         for entry in fs::read_dir("data/v3.0").unwrap() {

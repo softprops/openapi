@@ -1,3 +1,4 @@
+use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
 // http://json.schemastore.org/swagger-2.0
@@ -322,7 +323,8 @@ mod tests {
             serde_json::to_string(&Security::ApiKey {
                 name: "foo".into(),
                 location: "query".into(),
-            }).unwrap(),
+            })
+            .unwrap(),
             json
         );
     }
@@ -370,18 +372,19 @@ mod tests {
                 authorization_url: "foo/bar".into(),
                 token_url: None,
                 scopes: scopes,
-            }).unwrap()
+            })
+            .unwrap()
         );
     }
-
-
 
     #[test]
     fn parameter_or_ref_deserializes_ref() {
         let json = r#"{"$ref":"foo/bar"}"#;
         assert_eq!(
             serde_yaml::from_str::<ParameterOrRef>(&json).unwrap(),
-            ParameterOrRef::Ref { ref_path: "foo/bar".into() }
+            ParameterOrRef::Ref {
+                ref_path: "foo/bar".into()
+            }
         );
     }
 
@@ -390,9 +393,10 @@ mod tests {
         let json = r#"{"$ref":"foo/bar"}"#;
         assert_eq!(
             json,
-            serde_json::to_string(
-                &ParameterOrRef::Ref { ref_path: "foo/bar".into() },
-            ).unwrap()
+            serde_json::to_string(&ParameterOrRef::Ref {
+                ref_path: "foo/bar".into()
+            },)
+            .unwrap()
         );
     }
 }
