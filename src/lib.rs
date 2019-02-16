@@ -91,6 +91,7 @@ pub fn to_json(spec: &OpenApi) -> Result<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use pretty_assertions::assert_eq;
     use std::{
         fs::{self, read_to_string, File},
         io::Write,
@@ -148,7 +149,7 @@ mod tests {
         // Parse the input file
         let parsed_spec = from_path(&input_file).unwrap();
         // Convert to serde_json::Value
-        let parsed_spec_json: serde_json::Value = serde_json::to_value(parsed_spec).unwrap();
+        let parsed_spec_json = serde_json::to_value(parsed_spec).unwrap();
         // Convert to a JSON string
         let parsed_spec_json_str: String = serde_json::to_string_pretty(&parsed_spec_json).unwrap();
 
@@ -190,7 +191,6 @@ mod tests {
             ["target", "tests", "can_deserialize_and_reserialize_v2"]
                 .iter()
                 .collect();
-        let mut invalid_diffs = Vec::new();
 
         for entry in fs::read_dir("data/v2").unwrap() {
             let entry = entry.unwrap();
@@ -201,15 +201,13 @@ mod tests {
             let (api_filename, parsed_spec_json_str, spec_json_str) =
                 compare_spec_through_json(&path, &save_path_base);
 
-            if parsed_spec_json_str != spec_json_str {
-                invalid_diffs.push((api_filename, parsed_spec_json_str, spec_json_str));
-            }
+            assert_eq!(
+                parsed_spec_json_str.lines().collect::<Vec<_>>(),
+                spec_json_str.lines().collect::<Vec<_>>(),
+                "contents did not match for api {}",
+                api_filename
+            );
         }
-
-        for invalid_diff in &invalid_diffs {
-            println!("File {} failed JSON comparison!", invalid_diff.0);
-        }
-        assert!(invalid_diffs.len() == 0);
     }
 
     #[test]
@@ -218,7 +216,6 @@ mod tests {
             ["target", "tests", "can_deserialize_and_reserialize_v3"]
                 .iter()
                 .collect();
-        let mut invalid_diffs = Vec::new();
 
         for entry in fs::read_dir("data/v3.0").unwrap() {
             let entry = entry.unwrap();
@@ -229,14 +226,12 @@ mod tests {
             let (api_filename, parsed_spec_json_str, spec_json_str) =
                 compare_spec_through_json(&path, &save_path_base);
 
-            if parsed_spec_json_str != spec_json_str {
-                invalid_diffs.push((api_filename, parsed_spec_json_str, spec_json_str));
-            }
+            assert_eq!(
+                parsed_spec_json_str.lines().collect::<Vec<_>>(),
+                spec_json_str.lines().collect::<Vec<_>>(),
+                "contents did not match for api {}",
+                api_filename
+            );
         }
-
-        for invalid_diff in &invalid_diffs {
-            println!("File {} failed JSON comparison!", invalid_diff.0);
-        }
-        assert!(invalid_diffs.len() == 0);
     }
 }
