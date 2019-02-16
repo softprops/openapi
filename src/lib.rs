@@ -137,7 +137,8 @@ mod tests {
         //     File -> `String` -> `serde_yaml::Value` -> `serde_json::Value` -> `String`
 
         // Read the original file to string
-        let spec_yaml_str = read_to_string(&input_file).expect(&format!("failed to read contents of {:?}", input_file));
+        let spec_yaml_str = read_to_string(&input_file)
+            .unwrap_or_else(|e| panic!("failed to read contents of {:?}: {}", input_file, e));
         // Convert YAML string to JSON string
         let spec_json_str = convert_yaml_str_to_json(&spec_yaml_str);
 
