@@ -92,20 +92,9 @@ pub fn to_json(spec: &OpenApi) -> Result<String> {
 mod tests {
     use super::*;
     use std::{
-        fs::{self, File},
+        fs::{self, read_to_string, File},
         io::Write,
     };
-
-    /// Helper function for reading a file to string.
-    fn read_file<P>(path: P) -> String
-    where
-        P: AsRef<Path>,
-    {
-        let mut f = File::open(path).unwrap();
-        let mut content = String::new();
-        f.read_to_string(&mut content).unwrap();
-        content
-    }
 
     /// Helper function to write string to file.
     fn write_to_file<P>(
@@ -148,7 +137,7 @@ mod tests {
         //     File -> `String` -> `serde_yaml::Value` -> `serde_json::Value` -> `String`
 
         // Read the original file to string
-        let spec_yaml_str = read_file(&input_file);
+        let spec_yaml_str = read_to_string(&input_file).expect(&format!("failed to read contents of {:?}", input_file));
         // Convert YAML string to JSON string
         let spec_json_str = convert_yaml_str_to_json(&spec_yaml_str);
 
