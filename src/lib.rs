@@ -177,8 +177,7 @@ mod tests {
     #[test]
     fn can_deserialize() {
         for entry in fs::read_dir("data/v2").unwrap() {
-            let entry = entry.unwrap();
-            let path = entry.path();
+            let path = entry.unwrap().path();
             // cargo test -- --nocapture to see this message
             println!("Testing if {:?} is deserializable", path);
             from_path(path).unwrap();
@@ -193,8 +192,7 @@ mod tests {
                 .collect();
 
         for entry in fs::read_dir("data/v2").unwrap() {
-            let entry = entry.unwrap();
-            let path = entry.path();
+            let path = entry.unwrap().path();
 
             println!("Testing if {:?} is deserializable", path);
 
