@@ -1,3 +1,5 @@
+//! Schema specification for [OpenAPI 3.0.0](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md)
+//! 
 use semver;
 use serde::{Deserialize, Serialize};
 use serde_json;
