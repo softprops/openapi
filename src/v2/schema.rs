@@ -1,3 +1,4 @@
+use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
 // http://json.schemastore.org/swagger-2.0
@@ -78,6 +79,8 @@ pub struct ExternalDoc {
 }
 
 /// General information about the API.
+///
+/// https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#info-object
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
 #[serde(rename_all = "lowercase")]
 pub struct Info {
@@ -87,7 +90,7 @@ pub struct Info {
     /// A semantic version number of the API.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "termsOfService", skip_serializing_if = "Option::is_none")]
     pub terms_of_service: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub contact: Option<Contact>,
@@ -143,6 +146,7 @@ pub struct PathItem {
     pub parameters: Option<Vec<ParameterOrRef>>,
 }
 
+/// https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#operation-object
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
 #[serde(rename_all = "lowercase")]
 pub struct Operation {
@@ -158,7 +162,7 @@ pub struct Operation {
     pub schemes: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tags: Option<Vec<String>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(rename="operationId", skip_serializing_if = "Option::is_none")]
     pub operation_id: Option<String>,
     pub responses: BTreeMap<String, Response>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -194,6 +198,7 @@ pub struct Response {
 }
 
 // todo: support x-* fields
+/// https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#parameter-object
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 #[serde(untagged)]
 pub enum ParameterOrRef {
@@ -223,7 +228,8 @@ pub enum ParameterOrRef {
         /// of use.  GitHub Flavored Markdown is allowed.
         #[serde(skip_serializing_if = "Option::is_none")]
         description: Option<String>,
-        // collectionFormat: ???
+        #[serde(rename = "collectionFormat", skip_serializing_if = "Option::is_none")]
+        collection_format: Option<String>
         // default: ???
         // maximum ?
         // exclusiveMaximum ??
@@ -322,7 +328,8 @@ mod tests {
             serde_json::to_string(&Security::ApiKey {
                 name: "foo".into(),
                 location: "query".into(),
-            }).unwrap(),
+            })
+            .unwrap(),
             json
         );
     }
@@ -370,18 +377,19 @@ mod tests {
                 authorization_url: "foo/bar".into(),
                 token_url: None,
                 scopes: scopes,
-            }).unwrap()
+            })
+            .unwrap()
         );
     }
-
-
 
     #[test]
     fn parameter_or_ref_deserializes_ref() {
         let json = r#"{"$ref":"foo/bar"}"#;
         assert_eq!(
             serde_yaml::from_str::<ParameterOrRef>(&json).unwrap(),
-            ParameterOrRef::Ref { ref_path: "foo/bar".into() }
+            ParameterOrRef::Ref {
+                ref_path: "foo/bar".into()
+            }
         );
     }
 
@@ -390,9 +398,10 @@ mod tests {
         let json = r#"{"$ref":"foo/bar"}"#;
         assert_eq!(
             json,
-            serde_json::to_string(
-                &ParameterOrRef::Ref { ref_path: "foo/bar".into() },
-            ).unwrap()
+            serde_json::to_string(&ParameterOrRef::Ref {
+                ref_path: "foo/bar".into()
+            },)
+            .unwrap()
         );
     }
 }

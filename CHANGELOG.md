@@ -1,4 +1,4 @@
-# 0.1.6 (unreleased)
+# 0.2
 
 * expose security definition as an enum type
 * expose schema types which define `parameters` with new `ParameterOrRef` type
@@ -7,6 +7,8 @@
 * Derives Default for all structs
 * Derives Clone for all structs
 * Changes the order of the output to be more similar to OpenAPI examples
+* switch to 2018 edition
+* swap error_chain for failure crate
 
 # 0.1.5
 

@@ -1,14 +1,16 @@
+use crate::v3_0::{
+    Callback, Example, Header, Link, Parameter, RequestBody, Response, Schema, SecurityScheme,
+};
+use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
-
-use v3_0::{Callback, Example, Header, Link, Parameter, RequestBody, Response, Schema,
-           SecurityScheme};
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 #[serde(untagged)]
 pub enum ObjectOrReference<T> {
     Object(T),
     Ref {
-        #[serde(rename = "$ref")] ref_path: String,
+        #[serde(rename = "$ref")]
+        ref_path: String,
     },
 }
 

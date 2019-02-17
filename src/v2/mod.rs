@@ -6,4 +6,4 @@
 
 mod schema;
 
-pub use v2::schema::*;
+pub use crate::v2::schema::*;

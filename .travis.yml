@@ -1,45 +1,75 @@
-sudo: false
+# required because of tarpaulin dependency
+sudo: required
+
 language: rust
+
 matrix:
   fast_finish: true
   include:
   - rust: nightly
   - rust: beta
   - rust: stable
-  allow_failures:
-  - rust: nightly
+
+# only build pushes to master
+# prs are build separately
+# https://docs.travis-ci.com/user/pull-requests/#how-pull-requests-are-built
+branches:
+  only:
+  - master
+
+install: |
+  # see https://github.com/xd009642/tarpaulin/issues/150 for tarpaulin nightly dependency
+  if [[ "$TRAVIS_RUST_VERSION" == nightly ]]; then
+    RUSTFLAGS="--cfg procmacro2_semver_exempt" cargo install cargo-tarpaulin -f
+    # should only be necessary until rustfmt produces consistent results in stable/nightly
+    rustup component add rustfmt
+  fi
 script:
-- RUSTFLAGS="$RUSTFLAGS -C link-dead-code" cargo test
+- |
+   if [[ "$TRAVIS_RUST_VERSION" == nightly ]]; then
+     cargo fmt --all -- --check
+   fi
+- cargo test
+
+# Cache `cargo install`ed tools, but don't cache the project's `target`
+# directory (which ends up over-caching and filling all disk space!)
+# https://levans.fr/rust_travis_cache.html
 cache:
-  cargo: true
-  apt: true
   directories:
-  - target/debug/deps
-  - target/debug/build
+    - /home/travis/.cargo
+
+before_cache:
+  # But don't cache the cargo registry
+  - rm -rf /home/travis/.cargo/registry
+  # Travis can't cache files that are not readable by "others"
+  - chmod -R a+r $HOME/.cargo
+
 addons:
   apt:
     packages:
-    - libcurl4-openssl-dev
-    - libelf-dev
-    - libdw-dev
-    - cmake
-    - gcc
-    - binutils-dev
-after_success: |
-  [ $TRAVIS_RUST_VERSION = stable ] &&
-  [ $TRAVIS_BRANCH = master ] &&
-  [ $TRAVIS_PULL_REQUEST = false ] &&
-  (wget https://github.com/SimonKagstrom/kcov/archive/master.tar.gz &&
-  tar xzf master.tar.gz && mkdir kcov-master/build && cd kcov-master/build && cmake .. && make && make install DESTDIR=../tmp && cd ../.. &&
-  ls -al target/debug &&
-  for file in target/debug/openapi-*; do mkdir -p "target/cov/$(basename $file)"; ./kcov-master/tmp/usr/local/bin/kcov --exclude-pattern=/.cargo,/usr/lib --verify "target/cov/$(basename $file)" "$file"; done &&
-  echo "covered") || true &&
-  cargo doc --no-deps &&
-  echo "<meta http-equiv=refresh content=0;url=`echo $TRAVIS_REPO_SLUG | cut -d '/' -f 2`/index.html>" > target/doc/index.html &&
-  pip install --user ghp-import &&
-  /home/travis/.local/bin/ghp-import -n target/doc &&
-  git push -fq https://${GH_TOKEN}@github.com/${TRAVIS_REPO_SLUG}.git gh-pages &&
-  echo "documented"
-env:
-  global:
-    secure: N9ZjpsVX020jOn6UV8Iue1w5DWpv7+fYskSl1+WqpEb6dUKBoT3dd9/9+TPr/CUhj33xFM5zMZJtOo8vleogjeO/2eT+B7hMkUDH9f4A1MuqRvSAT5vNOGOpN9HysLbL0dgxFVn2wgUFI8761WOTBijwArd4/fW/P4DZB2W79tPMKrpueqXgHBwkvprCKU6CQCAgAQV9YvASpyjXQBQGhlCAw6b3GfsctqrngLshu7HeiKuWRWquHVIB5x3FWrFKJ/VSkOAhQG3a1QcJgzca5u4VIBPokj3Bcq4elmoIm0S4EYl8ETiuTWRr6UWMUam6UrUxPk28B2JrBl9CSHernyXxnbZE+GoF88QGdanxUQYV+kONT1NYMQiqbJaaQMkTxIvLUqOnKEf4bEqrqgYCO0V7Wf8t2Oo8PIRWI8jQmOlWFMvDE0qkDBdDjW0vU/9u1GjhasO/2cwXfxfloju49jPQd6pClv1LL/glcBO04vg2K+4xiOvqeqmFsqx24Eexrogshx9AVsBxP62q8nrhlw/uEldleGuUvuu6c6QDhZ5pKD+x4J7wiEGvWWnJc3uW2Ah6Rd9ruH+B35RTE9Ssmro1rus7zclPdwXtbYGr0fVI1pJOWxzERdrRMd8FysaWedFdEgeXx8ZVYwxthdup0xrfdb7uYooWB3JmIAmoMWY=
+      # required by tarpaulin code coverage tool
+      - libssl-dev
+
+after_success:
+  # report coverage to coveralls
+  # see https://github.com/xd009642/tarpaulin for more information
+  - '[ $TRAVIS_EVENT_TYPE != "cron" ] &&
+    [ $TRAVIS_RUST_VERSION = nightly ] &&
+    [ $TRAVIS_BRANCH = master ] &&
+    [ $TRAVIS_PULL_REQUEST = false ] &&
+    cargo tarpaulin --ciserver travis-ci --coveralls $TRAVIS_JOB_ID || true'
+  - '[ $TRAVIS_RUST_VERSION = stable ] &&
+    [ $TRAVIS_BRANCH = master ] &&
+    [ $TRAVIS_PULL_REQUEST = false ]
+    && cargo doc --no-deps &&
+    echo "<meta http-equiv=refresh content=0;url=`echo $TRAVIS_REPO_SLUG | cut -d / -f 2`/index.html>" > target/doc/index.html'
+
+deploy:
+  provider: pages
+  skip-cleanup: true
+  github-token: $GH_TOKEN
+  local-dir: target/doc
+  keep-history: false
+  on:
+    branch: master
+    condition: $TRAVIS_RUST_VERSION = stable
