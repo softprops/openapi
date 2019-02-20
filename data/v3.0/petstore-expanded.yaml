@@ -7,7 +7,7 @@ info:
   contact:
     name: Swagger API Team
     email: foo@example.com
-    url: http://madskristensen.net
+    url: http://madskristensen.net/
   license:
     name: MIT
     url: http://github.com/gruntjs/grunt/blob/master/LICENSE-MIT
@@ -136,12 +136,12 @@ components:
 
     NewPet:
       required:
-        - name  
+        - name
       properties:
         name:
           type: string
         tag:
-          type: string    
+          type: string
 
     Error:
       required:
