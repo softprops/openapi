@@ -475,7 +475,7 @@ pub struct Schema {
     pub example: Option<serde_json::value::Value>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    title: Option<String>,
+    pub title: Option<String>,
 
     // The following properties are taken directly from the JSON Schema definition and
     // follow the same specifications:
@@ -513,7 +513,7 @@ pub struct Schema {
     /// defined type for the Schema Object defined at the same level. For example, if type is
     /// `string`, then `default` can be `"foo"` but cannot be `1`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    default: Option<serde_json::Value>,
+    pub default: Option<serde_json::Value>,
 
     /// Inline or referenced schema MUST be of a [Schema Object](#schemaObject) and not a standard
     /// JSON Schema.
