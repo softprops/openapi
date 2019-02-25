@@ -515,6 +515,9 @@ pub struct Schema {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default: Option<serde_json::Value>,
 
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub minimum: Option<serde_json::Value>,
+
     /// Inline or referenced schema MUST be of a [Schema Object](#schemaObject) and not a standard
     /// JSON Schema.
     #[serde(rename = "allOf", skip_serializing_if = "Option::is_none")]
