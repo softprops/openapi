@@ -474,9 +474,11 @@ pub struct Schema {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub example: Option<serde_json::value::Value>,
 
+    #[serde(skip_serializing_if = "Option::is_none")]
+    title: Option<String>,
+
     // The following properties are taken directly from the JSON Schema definition and
     // follow the same specifications:
-    // title
     // multipleOf
     // maximum
     // exclusiveMaximum
