@@ -1,5 +1,5 @@
 //! Schema specification for [OpenAPI 3.0.0](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md)
-//! 
+
 use semver;
 use serde::{Deserialize, Serialize};
 use serde_json;
@@ -96,8 +96,8 @@ pub struct Info {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
     /// A URL to the Terms of Service for the API. MUST be in the format of a URL.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub terms_of_service: Option<String>,
+    #[serde(rename = "termsOfService", skip_serializing_if = "Option::is_none")]
+    pub terms_of_service: Option<Url>,
     /// REQUIRED. The version of the OpenAPI document (which is distinct from the [OpenAPI Specification version](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#oasVersion)
     /// or the API implementation version).
     pub version: String,
@@ -156,10 +156,31 @@ pub struct Server {
     /// An optional string describing the host designated by the URL. CommonMark syntax MAY be used for rich text representation.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
-    // // FIXME: Add this. See https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#server-object
-    // /// A map between a variable name and its value. The value is used for substitution in
-    // /// the server's URL template.
-    // pub variables: ,
+    /// A map between a variable name and its value. The value is used for substitution in
+    /// the server's URL template.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub variables: Option<BTreeMap<String, ServerVariable>>,
+}
+
+/// An object representing a Server Variable for server URL template substitution.
+///
+/// See [link]
+/// [link][https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#serverVariableObject]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
+pub struct ServerVariable {
+    /// The default value to use for substitution, and to send, if an alternate value is not
+    /// supplied. Unlike the Schema Object's default, this value MUST be provided by the consumer.
+    pub default: String,
+    /// An enumeration of string values to be used if the substitution options are from a limited
+    /// set.
+    #[serde(rename = "enum", skip_serializing_if = "Option::is_none")]
+    pub substitutions_enum: Option<Vec<String>>,
+    /// An optional description for the server variable. [CommonMark] syntax MAY be used for rich
+    /// text representation.
+    ///
+    /// [CommonMark]: https://spec.commonmark.org/
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub description: Option<String>,
 }
 
 /// Describes the operations available on a single path.
@@ -295,7 +316,6 @@ pub struct Operation {
     /// [link][https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#responsesObject]
     pub responses: BTreeMap<String, Response>,
 
-    // FIXME: Implement
     /// A map of possible out-of band callbacks related to the parent operation. The key is
     /// a unique identifier for the Callback Object. Each value in the map is a
     /// [Callback Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#callbackObject)
@@ -303,7 +323,8 @@ pub struct Operation {
     /// expected responses. The key value used to identify the callback object is
     /// an expression, evaluated at runtime, that identifies a URL to use for the
     /// callback operation.
-    // pub callbacks: Option<???>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub callbacks: Option<BTreeMap<String, Callback>>,
 
     /// Declares this operation to be deprecated. Consumers SHOULD refrain from usage
     /// of the declared operation. Default value is `false`.
@@ -371,6 +392,18 @@ pub struct Parameter {
     // enum ??
     // multipleOf ??
     // allowEmptyValue ( for query / body params )
+    /// Describes how the parameter value will be serialized depending on the type of the parameter
+    /// value. Default values (based on value of in): for `query` - `form`; for `path` - `simple`; for
+    /// `header` - `simple`; for cookie - `form`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    style: Option<ParameterStyle>,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+enum ParameterStyle {
+    Form,
+    Simple,
 }
 
 // FIXME: Verify against OpenAPI 3.0
@@ -440,6 +473,7 @@ pub struct Schema {
     ///       [`serde_json::Value`](https://docs.serde.rs/serde_json/value/enum.Value.html). [spec][https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#data-types]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub example: Option<serde_json::value::Value>,
+
     // The following properties are taken directly from the JSON Schema definition and
     // follow the same specifications:
     // title
@@ -472,6 +506,17 @@ pub struct Schema {
     // - description - [CommonMark syntax](http://spec.commonmark.org/) MAY be used for rich text representation.
     // - format - See [Data Type Formats](#dataTypeFormat) for further details. While relying on JSON Schema's defined formats, the OAS offers a few additional predefined formats.
     // - default - The default value represents what would be assumed by the consumer of the input as the value of the schema if one is not provided. Unlike JSON Schema, the value MUST conform to the defined type for the Schema Object defined at the same level. For example, if `type` is `string`, then `default` can be `"foo"` but cannot be `1`.
+    /// The default value represents what would be assumed by the consumer of the input as the value
+    /// of the schema if one is not provided. Unlike JSON Schema, the value MUST conform to the
+    /// defined type for the Schema Object defined at the same level. For example, if type is
+    /// `string`, then `default` can be `"foo"` but cannot be `1`.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    default: Option<serde_json::Value>,
+
+    /// Inline or referenced schema MUST be of a [Schema Object](#schemaObject) and not a standard
+    /// JSON Schema.
+    #[serde(rename = "allOf", skip_serializing_if = "Option::is_none")]
+    pub all_of: Option<Vec<ObjectOrReference<Schema>>>,
 }
 
 /// Describes a single response from an API Operation, including design-time, static `links`
@@ -611,6 +656,8 @@ pub enum Link {
         // /// `[{in}.]{name}` for operations that use the same parameter name in different
         // /// locations (e.g. path.id).
         // parameters: BTreeMap<String, Any | {expression}>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        parameters: Option<BTreeMap<String, String>>,
 
         // FIXME: Implement
         // /// A literal value or
@@ -643,6 +690,8 @@ pub enum Link {
         // /// `[{in}.]{name}` for operations that use the same parameter name in different
         // /// locations (e.g. path.id).
         // parameters: BTreeMap<String, Any | {expression}>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        parameters: Option<BTreeMap<String, String>>,
 
         // FIXME: Implement
         // /// A literal value or
@@ -672,7 +721,7 @@ pub struct MediaType {
     pub schema: Option<ObjectOrReference<Schema>>,
 
     /// Example of the media type.
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(flatten, skip_serializing_if = "Option::is_none")]
     pub examples: Option<MediaTypeExample>,
 
     /// A map between a property name and its encoding information. The key, being the
@@ -690,13 +739,13 @@ pub enum MediaTypeExample {
     /// specified by the media type. The `example` field is mutually exclusive of the
     /// `examples` field. Furthermore, if referencing a `schema` which contains an example,
     /// the `example` value SHALL override the example provided by the schema.
-    Example { example: String },
+    Example { example: serde_json::Value },
     /// Examples of the media type. Each example object SHOULD match the media type and
     /// specified schema if present. The `examples` field is mutually exclusive of
     /// the `example` field. Furthermore, if referencing a `schema` which contains an
     /// example, the `examples` value SHALL override the example provided by the schema.
     Examples {
-        examples: Option<BTreeMap<String, ObjectOrReference<Example>>>,
+        examples: BTreeMap<String, ObjectOrReference<Example>>,
     },
 }
 
@@ -762,12 +811,11 @@ pub struct Example {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
     // FIXME: Implement (merge with externalValue as enum)
-    // /// Embedded literal example. The `value` field and `externalValue` field are mutually
-    // /// exclusive. To represent examples of media types that cannot naturally represented
-    // /// in JSON or YAML, use a string value to contain the example, escaping where necessary.
-    // #[serde(skip_serializing_if = "Option::is_none")]
-    // pub value: Option<????>,
-
+    /// Embedded literal example. The `value` field and `externalValue` field are mutually
+    /// exclusive. To represent examples of media types that cannot naturally represented
+    /// in JSON or YAML, use a string value to contain the example, escaping where necessary.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub value: Option<serde_json::Value>,
     // FIXME: Implement (merge with value as enum)
     // /// A URL that points to the literal example. This provides the capability to reference
     // /// examples that cannot easily be included in JSON or YAML documents. The `value` field
@@ -818,6 +866,7 @@ pub enum SecurityScheme {
     },
 }
 
+// TODO: Implement
 /// A map of possible out-of band callbacks related to the parent operation. Each value in
 /// the map is a Path Item Object that describes a set of requests that may be initiated by
 /// the API provider and the expected responses. The key value used to identify the callback
@@ -828,7 +877,7 @@ pub enum SecurityScheme {
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
 pub struct Callback(
     /// A Path Item Object used to define a callback request and expected responses.
-    String, // TODO: Add "Specification Extensions" https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#specificationExtensions}
+    serde_json::Value, // TODO: Add "Specification Extensions" https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#specificationExtensions}
 );
 
 // FIXME: Implement

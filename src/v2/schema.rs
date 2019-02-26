@@ -162,12 +162,17 @@ pub struct Operation {
     pub schemes: Option<Vec<String>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub tags: Option<Vec<String>>,
-    #[serde(rename="operationId", skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "operationId", skip_serializing_if = "Option::is_none")]
     pub operation_id: Option<String>,
     pub responses: BTreeMap<String, Response>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub parameters: Option<Vec<ParameterOrRef>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub security: Option<Vec<SecurityRequirement>>,
 }
+
+/// https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#securityRequirementObject
+pub type SecurityRequirement = BTreeMap<String, Vec<String>>;
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
 #[serde(rename_all = "camelCase")]
@@ -188,6 +193,10 @@ pub struct Parameter {
     pub format: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub items: Option<Schema>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    default: Option<serde_json::Value>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
@@ -203,7 +212,6 @@ pub struct Response {
 #[serde(untagged)]
 pub enum ParameterOrRef {
     /// both bodyParameter and nonBodyParameter in one for now
-    #[derive(Default)]
     Parameter {
         /// The name of the parameter.
         name: String,
@@ -229,8 +237,9 @@ pub enum ParameterOrRef {
         #[serde(skip_serializing_if = "Option::is_none")]
         description: Option<String>,
         #[serde(rename = "collectionFormat", skip_serializing_if = "Option::is_none")]
-        collection_format: Option<String>
-        // default: ???
+        collection_format: Option<String>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        default: Option<serde_json::Value>,
         // maximum ?
         // exclusiveMaximum ??
         // minimum ??
@@ -243,6 +252,13 @@ pub enum ParameterOrRef {
         // enum ??
         // multipleOf ??
         // allowEmptyValue ( for query / body params )
+        #[serde(skip_serializing_if = "Option::is_none")]
+        items: Option<Schema>,
+        #[serde(
+            rename = "additionalProperties",
+            skip_serializing_if = "Option::is_none"
+        )]
+        additional_properties: Option<Schema>,
     },
     Ref {
         #[serde(rename = "$ref")]
@@ -257,19 +273,35 @@ pub enum Security {
         name: String,
         #[serde(rename = "in")]
         location: String,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        description: Option<String>,
     },
     #[serde(rename = "oauth2")]
     Oauth2 {
-        flow: String,
+        flow: Flow,
         #[serde(rename = "authorizationUrl")]
         authorization_url: String,
         #[serde(rename = "tokenUrl")]
         #[serde(skip_serializing_if = "Option::is_none")]
         token_url: Option<String>,
         scopes: BTreeMap<String, String>,
+        #[serde(skip_serializing_if = "Option::is_none")]
+        description: Option<String>,
     },
     #[serde(rename = "basic")]
-    Basic,
+    Basic {
+        #[serde(skip_serializing_if = "Option::is_none")]
+        description: Option<String>,
+    },
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub enum Flow {
+    Implicit,
+    Password,
+    Application,
+    AccessCode,
 }
 
 /// A [JSON schema](http://json-schema.org/) definition describing
@@ -300,6 +332,13 @@ pub struct Schema {
     // implies object
     #[serde(skip_serializing_if = "Option::is_none")]
     pub properties: Option<BTreeMap<String, Schema>>,
+    // composition
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "allOf")]
+    pub all_of: Option<Vec<Box<Schema>>>,
+    // TODO: we need a validation step that we only collect x-* properties here.
+    #[serde(flatten)]
+    pub other: BTreeMap<String, serde_json::Value>,
 }
 
 #[cfg(test)]
@@ -317,6 +356,7 @@ mod tests {
             Security::ApiKey {
                 name: "foo".into(),
                 location: "query".into(),
+                description: None,
             }
         );
     }
@@ -328,6 +368,7 @@ mod tests {
             serde_json::to_string(&Security::ApiKey {
                 name: "foo".into(),
                 location: "query".into(),
+                description: None,
             })
             .unwrap(),
             json
@@ -339,14 +380,17 @@ mod tests {
         let json = r#"{"type":"basic"}"#;
         assert_eq!(
             serde_yaml::from_str::<Security>(&json).unwrap(),
-            Security::Basic
+            Security::Basic { description: None }
         );
     }
 
     #[test]
     fn security_basic_serializes() {
         let json = r#"{"type":"basic"}"#;
-        assert_eq!(json, serde_json::to_string(&Security::Basic).unwrap());
+        assert_eq!(
+            json,
+            serde_json::to_string(&Security::Basic { description: None }).unwrap()
+        );
     }
 
     #[test]
@@ -357,10 +401,11 @@ mod tests {
         assert_eq!(
             serde_yaml::from_str::<Security>(&json).unwrap(),
             Security::Oauth2 {
-                flow: "implicit".into(),
+                flow: Flow::Implicit,
                 authorization_url: "foo/bar".into(),
                 token_url: None,
                 scopes: scopes,
+                description: None,
             }
         );
     }
@@ -373,10 +418,11 @@ mod tests {
         assert_eq!(
             json,
             serde_json::to_string(&Security::Oauth2 {
-                flow: "implicit".into(),
+                flow: Flow::Implicit,
                 authorization_url: "foo/bar".into(),
                 token_url: None,
                 scopes: scopes,
+                description: None,
             })
             .unwrap()
         );

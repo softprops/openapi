@@ -23,7 +23,7 @@ info:
   title: USPTO Data Set API
   contact:
     name: Open Data Portal
-    url: 'https://developer.uspto.gov'
+    url: 'https://developer.uspto.gov/'
     email: developer@uspto.gov
 tags:
   - name: metadata
