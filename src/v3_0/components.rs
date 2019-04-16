@@ -15,10 +15,11 @@ pub enum ObjectOrReference<T> {
 }
 
 /// Holds a set of reusable objects for different aspects of the OAS.
+///
 /// All objects defined within the components object will have no effect on the API unless
 /// they are explicitly referenced from properties outside the components object.
-/// See [link]
-/// [link][https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#componentsObject]
+///
+/// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#componentsObject>.
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
 pub struct Components {
     /// An object to hold reusable Schema Objects.

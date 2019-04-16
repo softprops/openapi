@@ -85,8 +85,8 @@ pub struct Spec {
 
 /// General information about the API.
 ///
-/// See [link]
-/// [link][https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#infoObject]
+///
+/// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#infoObject>.
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
 // #[serde(rename_all = "lowercase")]
 pub struct Info {
@@ -98,7 +98,8 @@ pub struct Info {
     /// A URL to the Terms of Service for the API. MUST be in the format of a URL.
     #[serde(rename = "termsOfService", skip_serializing_if = "Option::is_none")]
     pub terms_of_service: Option<Url>,
-    /// REQUIRED. The version of the OpenAPI document (which is distinct from the [OpenAPI Specification version](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#oasVersion)
+    /// The version of the OpenAPI document (which is distinct from the [OpenAPI Specification
+    /// version](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#oasVersion)
     /// or the API implementation version).
     pub version: String,
     /// The contact information for the exposed API.
@@ -114,8 +115,8 @@ pub struct Info {
 pub struct Url(#[serde(with = "url_serde")] url::Url);
 
 /// Contact information for the exposed API.
-/// See [link]
-/// [link][https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#contactObject]
+///
+/// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#contactObject>.
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
 pub struct Contact {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -131,8 +132,8 @@ pub struct Contact {
 }
 
 /// License information for the exposed API.
-/// See [link]
-/// [link][https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#licenseObject]
+///
+/// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#licenseObject>.
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
 pub struct License {
     /// The license name used for the API.
@@ -144,8 +145,8 @@ pub struct License {
 }
 
 /// An object representing a Server.
-/// See [link]
-/// [link][https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#serverObject]
+///
+/// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#serverObject>.
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
 pub struct Server {
     /// A URL to the target host. This URL supports Server Variables and MAY be relative, to
@@ -164,8 +165,7 @@ pub struct Server {
 
 /// An object representing a Server Variable for server URL template substitution.
 ///
-/// See [link]
-/// [link][https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#serverVariableObject]
+/// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#serverVariableObject>.
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
 pub struct ServerVariable {
     /// The default value to use for substitution, and to send, if an alternate value is not
@@ -184,10 +184,11 @@ pub struct ServerVariable {
 }
 
 /// Describes the operations available on a single path.
-/// A Path Item MAY be empty, due to
-/// [ACL constraints](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#securityFiltering).
-/// The path itself is still exposed to the documentation viewer but they will
-/// not know which operations and parameters are available.
+///
+/// A Path Item MAY be empty, due to [ACL
+/// constraints](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#securityFiltering).
+/// The path itself is still exposed to the documentation viewer but they will not know which
+/// operations and parameters are available.
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
 pub struct PathItem {
     /// Allows for an external definition of this path item. The referenced structure MUST be
@@ -253,8 +254,8 @@ pub struct PathItem {
 }
 
 /// Describes a single API operation on a path.
-/// See [link]
-/// [link][https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#operationObject]
+///
+/// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#operationObject>.
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
 // #[serde(rename_all = "lowercase")]
 pub struct Operation {
@@ -312,8 +313,7 @@ pub struct Operation {
     /// The `Responses Object` MUST contain at least one response code, and it SHOULD be the
     /// response for a successful operation call.
     ///
-    /// See [link]
-    /// [link][https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#responsesObject]
+    /// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#responsesObject>.
     pub responses: BTreeMap<String, Response>,
 
     /// A map of possible out-of band callbacks related to the parent operation. The key is
@@ -351,8 +351,8 @@ pub struct Operation {
 /// A unique parameter is defined by a combination of a
 /// [name](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#parameterName)
 /// and [location](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#parameterIn).
-/// See [link]
-/// [link][https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#parameterObject]
+///
+/// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#parameterObject>.
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
 pub struct Parameter {
     /// The name of the parameter.
@@ -416,8 +416,7 @@ enum ParameterStyle {
 /// [JSON Schema Validation](https://tools.ietf.org/html/draft-wright-json-schema-validation-00).
 /// Unless stated otherwise, the property definitions follow the JSON Schema.
 ///
-/// See [link]
-/// [link][https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#schemaObject]
+/// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#schemaObject>.
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
 pub struct Schema {
     /// [JSON reference](https://tools.ietf.org/html/draft-pbryan-zyp-json-ref-03)
@@ -452,12 +451,12 @@ pub struct Schema {
     #[serde(skip_serializing_if = "Option::is_none", rename = "readOnly")]
     pub read_only: Option<bool>,
 
+    // FIXME: Why can this be a "boolean" (as per the spec)? It doesn't make sense. Here it's not.
     /// Value can be boolean or object. Inline or referenced schema MUST be of a
     /// [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#schemaObject)
     /// and not a standard JSON Schema.
-    /// See [link]
-    /// [link][https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#properties]
-    // FIXME: Why can this be a "boolean" (as per the spec)? It doesn't make sense. Here it's not.
+    ///
+    /// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#properties>.
     #[serde(
         skip_serializing_if = "Option::is_none",
         rename = "additionalProperties"
@@ -474,9 +473,11 @@ pub struct Schema {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub example: Option<serde_json::value::Value>,
 
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
+
     // The following properties are taken directly from the JSON Schema definition and
     // follow the same specifications:
-    // title
     // multipleOf
     // maximum
     // exclusiveMaximum
@@ -511,7 +512,10 @@ pub struct Schema {
     /// defined type for the Schema Object defined at the same level. For example, if type is
     /// `string`, then `default` can be `"foo"` but cannot be `1`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    default: Option<serde_json::Value>,
+    pub default: Option<serde_json::Value>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub minimum: Option<serde_json::Value>,
 
     /// Inline or referenced schema MUST be of a [Schema Object](#schemaObject) and not a standard
     /// JSON Schema.
@@ -522,8 +526,7 @@ pub struct Schema {
 /// Describes a single response from an API Operation, including design-time, static `links`
 /// to operations based on the response.
 ///
-/// See [link]
-/// [link][https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#responseObject]
+/// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#responseObject>.
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
 pub struct Response {
     /// A short description of the response.
@@ -559,8 +562,8 @@ pub struct Response {
 /// 1. `in` MUST NOT be specified, it is implicitly in `header`.
 /// 1. All traits that are affected by the location MUST be applicable to a location of
 ///    `header` (for example, [`style`](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#parameterStyle)).
-/// See [link]
-/// [link][https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#headerObject]
+///
+/// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#headerObject>.
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
 pub struct Header {
     // FIXME: Is the third change properly implemented?
@@ -599,8 +602,8 @@ pub struct Header {
 }
 
 /// Describes a single request body.
-/// See [link]
-/// [link][https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#requestBodyObject]
+///
+/// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#requestBodyObject>.
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
 pub struct RequestBody {
     /// A brief description of the request body. This could contain examples of use.
@@ -632,8 +635,7 @@ pub struct RequestBody {
 /// is used for accessing values in an operation and using them as parameters while invoking
 /// the linked operation.
 ///
-/// See [link]
-/// [link][https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#linkObject]
+/// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#linkObject>.
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 #[serde(untagged)]
 pub enum Link {
@@ -712,8 +714,8 @@ pub enum Link {
 }
 
 /// Each Media Type Object provides schema and examples for the media type identified by its key.
-/// See [link]
-/// [link][https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#media-type-object]
+///
+/// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#media-type-object>.
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
 pub struct MediaType {
     /// The schema defining the type used for the request body.
@@ -797,9 +799,7 @@ pub struct Encoding {
     pub allow_reserved: Option<bool>,
 }
 
-///
-/// See [link]
-/// [link][https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#exampleObject]
+/// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#exampleObject>.
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
 pub struct Example {
     /// Short description for the example.
@@ -831,8 +831,8 @@ pub struct Example {
 ///OAuth2's common flows (implicit, password, application and access code) as defined
 /// in [RFC6749](https://tools.ietf.org/html/rfc6749), and
 /// [OpenID Connect Discovery](https://tools.ietf.org/html/draft-ietf-oauth-discovery-06).
-/// See [link]
-/// [link][https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#securitySchemeObject]
+///
+/// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#securitySchemeObject>.
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 #[serde(tag = "type")]
 pub enum SecurityScheme {
@@ -872,8 +872,8 @@ pub enum SecurityScheme {
 /// the API provider and the expected responses. The key value used to identify the callback
 /// object is an expression, evaluated at runtime, that identifies a URL to use for the
 /// callback operation.
-/// See [link]
-/// [link][https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#callbackObject]
+///
+/// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#callbackObject>.
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
 pub struct Callback(
     /// A Path Item Object used to define a callback request and expected responses.
@@ -891,8 +891,7 @@ pub struct Callback(
 /// [Operation Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#operationObject).
 /// It is not mandatory to have a Tag Object per tag defined in the Operation Object instances.
 ///
-/// See [link]
-/// [link][https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#tagObject]
+/// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#tagObject>.
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
 pub struct Tag {
     /// The name of the tag.
@@ -910,15 +909,12 @@ pub struct Tag {
 }
 
 /// Allows referencing an external resource for extended documentation.
-/// See [link]
-/// [link][https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#externalDocumentationObject]
-#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
+///
+/// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#externalDocumentationObject>.
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub struct ExternalDoc {
-    /// The URL for the target documentation. Value MUST be in the format of a URL.
-    // FIXME: Use `url::Url` instead of `String`
-    // #[serde(with = "url_serde")]
-    // pub url: url::Url,
-    pub url: String,
+    /// The URL for the target documentation.
+    pub url: Url,
 
     /// A short description of the target documentation.
     /// [CommonMark syntax](http://spec.commonmark.org/) MAY be used for rich text representation.
