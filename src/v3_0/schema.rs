@@ -114,6 +114,12 @@ pub struct Info {
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 pub struct Url(#[serde(with = "url_serde")] url::Url);
 
+impl Url {
+    pub fn parse<S: AsRef<str>>(input: S) -> std::result::Result<Url, url::ParseError> {
+        url::Url::parse(input.as_ref()).map(Url)
+    }
+}
+
 /// Contact information for the exposed API.
 ///
 /// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#contactObject>.
@@ -420,7 +426,7 @@ enum ParameterStyle {
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
 pub struct Schema {
     /// [JSON reference](https://tools.ietf.org/html/draft-pbryan-zyp-json-ref-03)
-    /// path to another defintion
+    /// path to another definition
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "$ref")]
     pub ref_path: Option<String>,
@@ -848,22 +854,78 @@ pub enum SecurityScheme {
         #[serde(rename = "bearerFormat")]
         bearer_format: String,
     },
-    // FIXME: Implement
-    // #[serde(rename = "oauth2")]
-    // Oauth2 {
-    //     flow: String,
-    //     #[serde(rename = "authorizationUrl")]
-    //     authorization_url: String,
-    //     #[serde(rename = "tokenUrl")]
-    //     #[serde(skip_serializing_if = "Option::is_none")]
-    //     token_url: Option<String>,
-    //     scopes: BTreeMap<String, String>,
-    // },
+    #[serde(rename = "oauth2")]
+    OAuth2 { flows: Flows },
     #[serde(rename = "openIdConnect")]
     OpenIdConnect {
         #[serde(rename = "openIdConnectUrl")]
         open_id_connect_url: String,
     },
+}
+
+/// Allows configuration of the supported OAuth Flows.
+/// See [link]
+/// [link][https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#oauth-flows-object]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct Flows {
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub implicit: Option<ImplicitFlow>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub password: Option<PasswordFlow>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub client_credentials: Option<ClientCredentialsFlow>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub authorization_code: Option<AuthorizationCodeFlow>,
+}
+
+/// Configuration details for a implicit OAuth Flow
+/// See [link]
+/// [link](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#oauth-flow-object)
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct ImplicitFlow {
+    pub authorization_url: Url,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub refresh_url: Option<Url>,
+    pub scopes: BTreeMap<String, String>,
+}
+
+/// Configuration details for a password OAuth Flow
+/// See [link]
+/// [link](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#oauth-flow-object
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct PasswordFlow {
+    token_url: Url,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub refresh_url: Option<Url>,
+    pub scopes: BTreeMap<String, String>,
+}
+
+/// Configuration details for a client credentials OAuth Flow
+/// See [link]
+/// [link](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#oauth-flow-object
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct ClientCredentialsFlow {
+    token_url: Url,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub refresh_url: Option<Url>,
+    pub scopes: BTreeMap<String, String>,
+}
+
+/// Configuration details for a authorization code OAuth Flow
+/// See [link]
+/// [link](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#oauth-flow-object
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
+#[serde(rename_all = "camelCase")]
+pub struct AuthorizationCodeFlow {
+    pub authorization_url: Url,
+    token_url: Url,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub refresh_url: Option<Url>,
+    pub scopes: BTreeMap<String, String>,
 }
 
 // TODO: Implement
@@ -921,4 +983,60 @@ pub struct ExternalDoc {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
     // TODO: Add "Specification Extensions" https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#specificationExtensions}
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_security_scheme_oauth_deser() {
+        const IMPLICIT_OAUTH2_SAMPLE: &str = r#"{
+          "type": "oauth2",
+          "flows": {
+            "implicit": {
+              "authorizationUrl": "https://example.com/api/oauth/dialog",
+              "scopes": {
+                "write:pets": "modify pets in your account",
+                "read:pets": "read your pets"
+              }
+            },
+            "authorizationCode": {
+              "authorizationUrl": "https://example.com/api/oauth/dialog",
+              "tokenUrl": "https://example.com/api/oauth/token",
+              "scopes": {
+                "write:pets": "modify pets in your account",
+                "read:pets": "read your pets"
+              }
+            }
+          }
+        }"#;
+        let obj: SecurityScheme = serde_json::from_str(&IMPLICIT_OAUTH2_SAMPLE).unwrap();
+        match obj {
+            SecurityScheme::OAuth2 { flows } => {
+                assert!(flows.implicit.is_some());
+                let implicit = flows.implicit.unwrap();
+                assert_eq!(
+                    implicit.authorization_url,
+                    Url::parse("https://example.com/api/oauth/dialog").unwrap()
+                );
+                assert!(implicit.scopes.contains_key("write:pets"));
+                assert!(implicit.scopes.contains_key("read:pets"));
+
+                assert!(flows.authorization_code.is_some());
+                let auth_code = flows.authorization_code.unwrap();
+                assert_eq!(
+                    auth_code.authorization_url,
+                    Url::parse("https://example.com/api/oauth/dialog").unwrap()
+                );
+                assert_eq!(
+                    auth_code.token_url,
+                    Url::parse("https://example.com/api/oauth/token").unwrap()
+                );
+                assert!(implicit.scopes.contains_key("write:pets"));
+                assert!(implicit.scopes.contains_key("read:pets"));
+            }
+            _ => assert!(false, "wrong security scheme type"),
+        }
+    }
 }
