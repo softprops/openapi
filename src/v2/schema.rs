@@ -58,7 +58,7 @@ pub struct Spec {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub security: Option<Vec<BTreeMap<String, Vec<String>>>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub external_docs: Option<Vec<ExternalDoc>>,
+    pub external_docs: Option<ExternalDoc>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
@@ -68,7 +68,7 @@ pub struct Tag {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub external_docs: Option<Vec<ExternalDoc>>,
+    pub external_docs: Option<ExternalDoc>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
