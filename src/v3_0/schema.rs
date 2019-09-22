@@ -457,6 +457,9 @@ pub struct Schema {
     #[serde(skip_serializing_if = "Option::is_none", rename = "readOnly")]
     pub read_only: Option<bool>,
 
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub nullable: Option<bool>,
+
     // FIXME: Why can this be a "boolean" (as per the spec)? It doesn't make sense. Here it's not.
     /// Value can be boolean or object. Inline or referenced schema MUST be of a
     /// [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#schemaObject)
