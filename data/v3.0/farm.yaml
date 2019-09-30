@@ -1,0 +1,31 @@
+openapi: "3.0.0"
+info:
+  title: Test for object reference collect
+  version: v2
+paths:
+  /farm:
+    get:
+      responses:
+        '200':
+          content:
+            application/json:    
+              schema:
+                $ref: "#/components/schemas/Farm"
+components:
+  schemas:
+    Farm:
+      properties:
+        dog:
+          $ref: "animals.yaml#/Dog"
+      items:
+          $ref: "animals.yaml#/Cow"
+      additionalProperties:
+        properties:
+          cat:
+            $ref: "animals.yaml#/Cat"
+
+    RecursiveFarm:
+      properties:
+        farm:
+          $ref: "#components/schemas/RecursiveFarm"
+

@@ -1,0 +1,26 @@
+Dog:
+  properties:
+    id:
+      type: integer
+    name:
+      type: string
+    type:
+      type: string
+
+Cat:
+  properties:
+    id:
+      type: integer
+    name:
+      type: string
+    type:
+      type: string
+
+Cow:
+  properties:
+    id:
+      type: integer
+    name:
+      type: string
+    type:
+      type: string

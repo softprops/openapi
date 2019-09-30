@@ -1,5 +1,6 @@
 //! Schema specification for [OpenAPI 3.0.0](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md)
 
+use itertools::Itertools;
 use semver;
 use serde::{Deserialize, Serialize};
 use serde_json;
@@ -22,6 +23,51 @@ impl Spec {
         } else {
             Err(Error::UnsupportedSpecFileVersion(sem_ver))?
         }
+    }
+
+    //     pub fn collect_ref_schemas(&mut self) -> Result<Vec<Schema>> {
+    //         // let paths: Vec<&String> = self.collect_ref_paths().unique().collect();
+    //         // dbg!(&paths);
+    //         Ok(vec![])
+    //     }
+
+    pub fn collect_ref_paths(&mut self) -> Vec<&String> {
+        // helper function to map ObjectOrReference schemas
+        fn map_obj_or_refence<'a>(
+            iter: impl Iterator<Item = &'a ObjectOrReference<Schema>>,
+        ) -> impl Iterator<Item = &'a String> {
+            iter.map(|obj_or_ref| match obj_or_ref {
+                ObjectOrReference::Object(schema) => Some(schema),
+                _ => None,
+            })
+            .filter_map(|x| x)
+            .flat_map(|schema| schema.collect_ref_paths())
+        };
+
+        self.components
+            .iter()
+            .flat_map(|components| {
+                components
+                    .schemas
+                    .iter()
+                    .flat_map(|hashmap| map_obj_or_refence(hashmap.values()))
+            })
+            //  .chain(self.paths.values().map(|p|{
+            //      [p.get,p.put,p.post,p.delete,p.options,p.head,p.patch,p.trace].iter()
+            //          .filter_map(Option::Some)
+            //          .map(|o| {
+            //              o.iter().map(|op| {
+            //                  op.request_body.iter().map(|obj_or_ref| match obj_or_ref {
+            //                      ObjectOrReference::Object(requestbody) => {
+            //                          requestbody.content.values().
+            //                      _ => None,
+            //                  })
+            //                  .filter_map(|r| r)
+            //              })
+            //          })
+            // })
+            .unique()
+            .collect()
     }
 }
 
@@ -530,6 +576,38 @@ pub struct Schema {
     /// JSON Schema.
     #[serde(rename = "allOf", skip_serializing_if = "Option::is_none")]
     pub all_of: Option<Vec<ObjectOrReference<Schema>>>,
+}
+
+impl Schema {
+    /// Returns all ref_paths
+    fn collect_ref_paths<'a>(&'a self) -> Box<dyn Iterator<Item = &String> + 'a> {
+        Box::new(
+            self.ref_path
+                .iter()
+                .map(|s| Some(s))
+                .filter_map(|r| r)
+                .chain(self.properties.iter().flat_map(|hashmap| {
+                    hashmap
+                        .values()
+                        .flat_map(|schema| schema.collect_ref_paths())
+                }))
+                .chain(
+                    self.items
+                        .iter()
+                        .flat_map(|schema| schema.collect_ref_paths()),
+                )
+                .chain(
+                    self.additional_properties
+                        .iter()
+                        .map(|obj_or_ref| match obj_or_ref {
+                            ObjectOrReference::Object(schema) => Some(schema),
+                            _ => None,
+                        })
+                        .filter_map(|x| x)
+                        .flat_map(|schema| schema.collect_ref_paths()),
+                ),
+        )
+    }
 }
 
 /// Describes a single response from an API Operation, including design-time, static `links`

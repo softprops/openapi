@@ -98,11 +98,8 @@ mod tests {
     };
 
     /// Helper function to write string to file.
-    fn write_to_file<P>(
-        path: P,
-        filename: &str,
-        data: &str,
-    ) where
+    fn write_to_file<P>(path: P, filename: &str, data: &str)
+    where
         P: AsRef<Path> + std::fmt::Debug,
     {
         println!("    Saving string to {:?}...", path);
@@ -230,6 +227,16 @@ mod tests {
                 "contents did not match for api {}",
                 api_filename
             );
+        }
+    }
+
+    #[test]
+    fn can_collect_refs_v3() {
+        let mut openapi = from_path("data/v3.0/farm.yaml").unwrap();
+        if let OpenApi::V3_0(ref mut spec) = openapi {
+            dbg!(&spec);
+            let paths: Vec<&String> = spec.collect_ref_paths();
+            dbg!(&paths);
         }
     }
 }
