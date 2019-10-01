@@ -1,4 +1,5 @@
 Dog:
+  type: object
   properties:
     id:
       type: integer
@@ -8,6 +9,7 @@ Dog:
       type: string
 
 Cat:
+  type: object
   properties:
     id:
       type: integer
@@ -17,6 +19,7 @@ Cat:
       type: string
 
 Cow:
+  type: object
   properties:
     id:
       type: integer

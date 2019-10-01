@@ -91,6 +91,7 @@ pub fn to_json(spec: &OpenApi) -> Result<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use itertools::Itertools;
     use pretty_assertions::assert_eq;
     use std::{
         fs::{self, read_to_string, File},
@@ -235,8 +236,8 @@ mod tests {
         let mut openapi = from_path("data/v3.0/farm.yaml").unwrap();
         if let OpenApi::V3_0(ref mut spec) = openapi {
             dbg!(&spec);
-            let paths: Vec<&String> = spec.collect_ref_paths();
-            dbg!(&paths);
+            let schemas = spec.collect_ref_schemas(Path::new("data/v3.0"));
+            dbg!(&schemas);
         }
     }
 }

@@ -5,6 +5,9 @@ use semver;
 use serde::{Deserialize, Serialize};
 use serde_json;
 use std::collections::BTreeMap;
+use std::fs::File;
+use std::io::BufReader;
+use std::path::{Path, PathBuf};
 use url;
 use url_serde;
 
@@ -25,13 +28,35 @@ impl Spec {
         }
     }
 
-    //     pub fn collect_ref_schemas(&mut self) -> Result<Vec<Schema>> {
-    //         // let paths: Vec<&String> = self.collect_ref_paths().unique().collect();
-    //         // dbg!(&paths);
-    //         Ok(vec![])
-    //     }
+    pub fn collect_ref_schemas<'a>(
+        &'a mut self,
+        root: &'a Path,
+    ) -> Result<BTreeMap<String, Schema>> {
+        // recursive function to produce iterator from all referenced schemas outside root api file
+        fn read_schemas(ref_path: PathBuf) -> Option<BTreeMap<String, Schema>> {
+            // load model from file and deserialize it to vector of schemas
+            let file = File::open(&ref_path).unwrap();
+            let reader = BufReader::new(file);
+            let ext = ref_path.extension().unwrap().to_str().unwrap();
+            match ext {
+                "yaml" | "yml" => serde_yaml::from_reader(reader).ok(),
+                "json" => serde_json::from_reader(reader).ok(),
+                _ => None,
+            }
+        };
 
-    pub fn collect_ref_paths(&mut self) -> Vec<&String> {
+        Ok(self
+            .collect_ref_paths()
+            .flat_map(|path| path.split("#").take(1))
+            .unique()
+            .filter(|path| !path.is_empty())
+            .map(|path| root.join(path))
+            .filter_map(|path| read_schemas(path))
+            .flatten()
+            .collect())
+    }
+
+    pub fn collect_ref_paths<'a>(&'a self) -> Box<dyn Iterator<Item = &String> + 'a> {
         // helper function to map ObjectOrReference schemas
         fn map_obj_or_refence<'a>(
             iter: impl Iterator<Item = &'a ObjectOrReference<Schema>>,
@@ -44,30 +69,27 @@ impl Spec {
             .flat_map(|schema| schema.collect_ref_paths())
         };
 
-        self.components
-            .iter()
-            .flat_map(|components| {
+        Box::new(
+            self.components.iter().flat_map(|components| {
                 components
                     .schemas
                     .iter()
                     .flat_map(|hashmap| map_obj_or_refence(hashmap.values()))
-            })
-            //  .chain(self.paths.values().map(|p|{
-            //      [p.get,p.put,p.post,p.delete,p.options,p.head,p.patch,p.trace].iter()
-            //          .filter_map(Option::Some)
-            //          .map(|o| {
-            //              o.iter().map(|op| {
-            //                  op.request_body.iter().map(|obj_or_ref| match obj_or_ref {
-            //                      ObjectOrReference::Object(requestbody) => {
-            //                          requestbody.content.values().
-            //                      _ => None,
-            //                  })
-            //                  .filter_map(|r| r)
-            //              })
-            //          })
-            // })
-            .unique()
-            .collect()
+            }), //  .chain(self.paths.values().map(|p|{
+                //      [p.get,p.put,p.post,p.delete,p.options,p.head,p.patch,p.trace].iter()
+                //          .filter_map(Option::Some)
+                //          .map(|o| {
+                //              o.iter().map(|op| {
+                //                  op.request_body.iter().map(|obj_or_ref| match obj_or_ref {
+                //                      ObjectOrReference::Object(requestbody) => {
+                //                          requestbody.content.values().
+                //                      _ => None,
+                //                  })
+                //                  .filter_map(|r| r)
+                //              })
+                //          })
+                // })
+        )
     }
 }
 
