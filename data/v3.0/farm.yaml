@@ -28,4 +28,6 @@ components:
       properties:
         farm:
           $ref: "#components/schemas/RecursiveFarm"
+        loop:
+          $ref: "loop.yaml#/Loop"
 
