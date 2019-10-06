@@ -20,7 +20,7 @@ branches:
 
 install: |
   rustup component add rustfmt
-  cargo install cargo-tarpaulin
+  #  cargo install cargo-tarpaulin
 script:
   #- cargo fmt --all -- --check
 - cargo test
@@ -33,6 +33,10 @@ cache:
     - /home/travis/.cargo
 
 before_cache:
+  - | 
+    if [[ "$TRAVIS_RUST_VERSION" == stable ]]; then
+      cargo install cargo-tarpaulin -f
+    fi
   # But don't cache the cargo registry
   - rm -rf /home/travis/.cargo/registry
   # Travis can't cache files that are not readable by "others"
@@ -48,7 +52,7 @@ after_success:
   # report coverage to coveralls
   # see https://github.com/xd009642/tarpaulin for more information
   - '[ $TRAVIS_EVENT_TYPE != "cron" ] &&
-    [ $TRAVIS_RUST_VERSION = nightly ] &&
+    [ $TRAVIS_RUST_VERSION = stable ] &&
     [ $TRAVIS_BRANCH = master ] &&
     [ $TRAVIS_PULL_REQUEST = false ] &&
     cargo tarpaulin --ciserver travis-ci --coveralls $TRAVIS_JOB_ID || true'
