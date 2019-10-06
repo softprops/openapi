@@ -528,8 +528,27 @@ pub struct Schema {
 
     /// Inline or referenced schema MUST be of a [Schema Object](#schemaObject) and not a standard
     /// JSON Schema.
+    /// [allOf](https://swagger.io/docs/specification/data-models/oneof-anyof-allof-not/#allof)
     #[serde(rename = "allOf", skip_serializing_if = "Option::is_none")]
     pub all_of: Option<Vec<ObjectOrReference<Schema>>>,
+
+    /// Inline or referenced schema MUST be of a [Schema Object](#schemaObject) and not a standard
+    /// JSON Schema.
+    /// [oneOf](https://swagger.io/docs/specification/data-models/oneof-anyof-allof-not/#oneof)
+    #[serde(rename = "oneOf", skip_serializing_if = "Option::is_none")]
+    pub one_of: Option<Vec<ObjectOrReference<Schema>>>,
+
+    /// Inline or referenced schema MUST be of a [Schema Object](#schemaObject) and not a standard
+    /// JSON Schema.
+    /// [anyOf](https://swagger.io/docs/specification/data-models/oneof-anyof-allof-not/#anyof)
+    #[serde(rename = "anyOf", skip_serializing_if = "Option::is_none")]
+    pub any_of: Option<Vec<ObjectOrReference<Schema>>>,
+
+    /// Inline or referenced schema MUST be of a [Schema Object](#schemaObject) and not a standard
+    /// JSON Schema.
+    /// [not](https://swagger.io/docs/specification/data-models/oneof-anyof-allof-not/#not)
+    #[serde(rename = "not", skip_serializing_if = "Option::is_none")]
+    pub not: Option<Vec<ObjectOrReference<Schema>>>,
 }
 
 /// Describes a single response from an API Operation, including design-time, static `links`

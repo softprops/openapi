@@ -153,3 +153,24 @@ components:
           format: int32
         message:
           type: string
+
+    PetSpecies:
+      oneOf:
+        - $ref: '#/components/schemas/Dog'
+        - $ref: '#/components/schemas/Cat'
+
+    Dog:
+      properties:
+        name:
+          type: string
+        age:
+          type: int
+
+    Cat:
+      properties:
+        name:
+          type: string
+        age:
+          type: int
+        lives:
+          type: int
