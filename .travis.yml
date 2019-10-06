@@ -15,6 +15,7 @@ matrix:
 # https://docs.travis-ci.com/user/pull-requests/#how-pull-requests-are-built
 branches:
   only:
+  - fix_travis
   - master
 
 install: |
