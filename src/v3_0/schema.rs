@@ -50,31 +50,35 @@ impl Spec {
         fn schemas_from_ref<'a>(
             root: &Path,
             ref_path: &'a String,
-        ) -> Box<dyn Iterator<Item = (String, Schema)>> {
+            a: &BTreeMap<String, Schema>,
+        ) -> BTreeMap<String, Schema> {
             let split = ref_path.split("#").collect::<Vec<&'a str>>();
             let file: &'a str = split[0];
             let mut path: PathBuf = root.join(file);
 
             // original iterator
-            let a = read_schemas(&path);
+            let b: BTreeMap<String, Schema> = read_schemas(&path)
+                .filter(|(k, _)| !a.contains_key(k))
+                .collect();
             path.pop();
 
-            Box::new(
-                a.unique_by(|tup| tup.0.clone())
-                    .flat_map(move |(key, schema)| {
-                        schema
-                            .iter_ref_paths()
-                            .flat_map(|ref_path| schemas_from_ref(&path, ref_path))
-                            .chain(std::iter::once((key, schema.clone())))
-                            .collect::<Vec<(String, Schema)>>()
-                    })
-                    .unique_by(|tup| tup.0.clone()),
-            )
+            let mut c = a.clone();
+            c.extend(b.clone());
+
+            b.into_iter()
+                .flat_map(move |(key, schema)| {
+                    schema
+                        .iter_ref_paths()
+                        .flat_map(|ref_path| schemas_from_ref(&path, ref_path, &c))
+                        .chain(std::iter::once((key, schema.clone())))
+                        .collect::<Vec<(String, Schema)>>()
+                })
+                .collect()
         }
 
         Ok(self
             .iter_ref_paths()
-            .flat_map(move |path| schemas_from_ref(&root, path))
+            .flat_map(move |path| schemas_from_ref(&root, path, &BTreeMap::new()))
             .collect())
     }
 
