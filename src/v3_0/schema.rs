@@ -33,65 +33,52 @@ impl Spec {
         root: &'a Path,
     ) -> Result<BTreeMap<String, Schema>> {
         // reads schemas from file
-        fn read_schemas(path: &Path) -> Option<BTreeMap<String, Schema>> {
+        fn read_schemas(path: &Path) -> impl Iterator<Item = (String, Schema)> {
             let file = File::open(&path).unwrap();
             let reader = BufReader::new(file);
             let ext = path.extension().unwrap().to_str().unwrap();
-            match ext {
+
+            let map: Option<BTreeMap<String, Schema>> = match ext {
                 "yaml" | "yml" => serde_yaml::from_reader(reader).ok(),
                 "json" => serde_json::from_reader(reader).ok(),
                 _ => None,
-            }
-        };
+            };
 
-        fn schemas_from_refs<'a>(
-            root: &'a Path,
+            map.into_iter().flat_map(|kv| kv.into_iter())
+        }
+
+        fn schemas_from_ref<'a>(
+            root: &Path,
             ref_path: &'a String,
-        ) -> Box<dyn Iterator<Item = (String, BTreeMap<String, Schema>)> + 'a> {
-            let file: &'a str = ref_path.split("#").collect::<Vec<&str>>()[0];
-            let path = root.join(&file);
+        ) -> Box<dyn Iterator<Item = (String, Schema)>> {
+            let split = ref_path.split("#").collect::<Vec<&'a str>>();
+            let file: &'a str = split[0];
+            let mut path: PathBuf = root.join(file);
+
+            // original iterator
+            let a = read_schemas(&path);
+            path.pop();
 
             Box::new(
-                read_schemas(&path)
-                    .iter()
-                    .map(move |treemap| (file.to_owned(), treemap)),
+                a.unique_by(|tup| tup.0.clone())
+                    .flat_map(move |(key, schema)| {
+                        schema
+                            .iter_ref_paths()
+                            .flat_map(|ref_path| schemas_from_ref(&path, ref_path))
+                            .chain(std::iter::once((key, schema.clone())))
+                            .collect::<Vec<(String, Schema)>>()
+                    })
+                    .unique_by(|tup| tup.0.clone()),
             )
-
-            // let added: Vec<BTreeMap<String, BTreeMap<String, Schema>>> = schemas
-            //     .get(file)
-            //     .iter()
-            //     // treemap
-            //     .flat_map(|tm| tm.values())
-            //     // schemas
-            //     .flat_map(|schema| schema.iter_ref_paths())
-            //     // paths
-            //     .filter_map(move |ref_path| {
-            //         if !schemas.contains_key(ref_path) {
-            //             Some(schemas_from_refs(root, ref_path, schemas))
-            //         } else {
-            //             None
-            //         }
-            //     })
-            //     .collect();
-
-            // for map in treemap.get(file) {
-            //     for schema in map.values() {
-            //     }
-            // }
         }
 
         Ok(self
             .iter_ref_paths()
-            .flat_map(|path| path.split("#").take(1))
-            .unique()
-            .filter(|path| !path.is_empty())
-            .map(|path| root.join(path))
-            .filter_map(|path| read_schemas(&path))
-            .flatten()
+            .flat_map(move |path| schemas_from_ref(&root, path))
             .collect())
     }
 
-    pub fn iter_ref_paths<'a>(&'a self) -> Box<dyn Iterator<Item = &String> + 'a> {
+    pub fn iter_ref_paths<'a>(&'a self) -> Box<dyn Iterator<Item = &'a String> + 'a> {
         // helper function to map ObjectOrReference schemas
         fn map_obj_or_refence<'a>(
             iter: impl Iterator<Item = &'a ObjectOrReference<Schema>>,
