@@ -52,32 +52,40 @@ impl Spec {
             ref_path: &'a String,
             a: &BTreeMap<String, Schema>,
         ) -> BTreeMap<String, Schema> {
+            // create file path,
+            // removing everything after '#'
             let split = ref_path.split("#").collect::<Vec<&'a str>>();
             let file: &'a str = split[0];
             let mut path: PathBuf = root.join(file);
 
-            // original iterator
+            // read schemas from file to map b,
+            // filtering out schemas that are already in map a
             let b: BTreeMap<String, Schema> = read_schemas(&path)
                 .filter(|(k, _)| !a.contains_key(k))
                 .collect();
-            path.pop();
 
+            // merge a with b to map c
             let mut c = a.clone();
             c.extend(b.clone());
 
-            b.into_iter()
-                .flat_map(move |(key, schema)| {
-                    schema
-                        .iter_ref_paths()
-                        .flat_map(|ref_path| schemas_from_ref(&path, ref_path, &c))
-                        .chain(std::iter::once((key, schema.clone())))
-                        .collect::<Vec<(String, Schema)>>()
-                })
-                .collect()
+            // create next root path by popping filename from path
+            path.pop();
+
+            // fold values in map b with map c
+            // (which contains now all the schemas)
+            // recursively so we keep track of collected schemas so far
+            b.values().fold(c, |acc, schema| {
+                schema
+                    .iter_ref_paths()
+                    .unique()
+                    .flat_map(|ref_path| schemas_from_ref(&path, ref_path, &acc))
+                    .collect()
+            })
         }
 
         Ok(self
             .iter_ref_paths()
+            .unique()
             .flat_map(move |path| schemas_from_ref(&root, path, &BTreeMap::new()))
             .collect())
     }

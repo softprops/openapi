@@ -29,5 +29,5 @@ components:
         farm:
           $ref: "#components/schemas/RecursiveFarm"
         loop:
-          $ref: "loop.yaml#/Loop"
+          $ref: "loop/loop.yaml#/Loop"
 

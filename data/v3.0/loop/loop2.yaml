@@ -1,0 +1,5 @@
+Loop2:
+  properties:
+    loop:
+      $ref: "loop3.yaml#/Loop3"
+
