@@ -47,16 +47,18 @@ impl Spec {
             map.into_iter().flat_map(|kv| kv.into_iter())
         }
 
-        fn schemas_from_ref<'a>(
+        // creates file path,
+        // removing everything after '#'
+        fn ref_file<'a>(ref_path: &'a String) -> &'a str {
+            ref_path.split("#").next().expect("failed to get ref path")
+        }
+
+        fn schemas_from_ref(
             root: &Path,
-            ref_path: &'a String,
+            ref_path: &str,
             a: &BTreeMap<String, Schema>,
         ) -> BTreeMap<String, Schema> {
-            // create file path,
-            // removing everything after '#'
-            let split = ref_path.split("#").collect::<Vec<&'a str>>();
-            let file: &'a str = split[0];
-            let mut path: PathBuf = root.join(file);
+            let mut path: PathBuf = root.join(&ref_path);
 
             // read schemas from file to map b,
             // filtering out schemas that are already in map a
@@ -77,6 +79,7 @@ impl Spec {
             b.values().fold(c, |acc, schema| {
                 schema
                     .iter_ref_paths()
+                    .map(ref_file)
                     .unique()
                     .flat_map(|ref_path| schemas_from_ref(&path, ref_path, &acc))
                     .collect()
@@ -85,6 +88,7 @@ impl Spec {
 
         Ok(self
             .iter_ref_paths()
+            .map(ref_file)
             .unique()
             .flat_map(move |path| schemas_from_ref(&root, path, &BTreeMap::new()))
             .collect())
@@ -636,7 +640,7 @@ pub struct Schema {
 
 impl Schema {
     /// Returns all ref_paths
-    fn iter_ref_paths<'a>(&'a self) -> Box<dyn Iterator<Item = &String> + 'a> {
+    fn iter_ref_paths<'a>(&'a self) -> Box<dyn Iterator<Item = &'a String> + 'a> {
         Box::new(
             self.ref_path
                 .iter()
