@@ -7,6 +7,7 @@ paths:
     get:
       responses:
         '200':
+          description: "get farm content"
           content:
             application/json:    
               schema:
@@ -16,18 +17,18 @@ components:
     Farm:
       properties:
         dog:
-          $ref: "animals.yaml#/Dog"
+          $ref: "extra/animals.yaml#/Dog"
       items:
-          $ref: "animals.yaml#/Cow"
+          $ref: "extra/animals.yaml#/Cow"
       additionalProperties:
         properties:
           cat:
-            $ref: "animals.yaml#/Cat"
+            $ref: "extra/animals.yaml#/Cat"
 
     RecursiveFarm:
       properties:
         farm:
           $ref: "#components/schemas/RecursiveFarm"
         loop:
-          $ref: "loop/loop.yaml#/Loop"
+          $ref: "extra/loop.yaml#/Loop"
 

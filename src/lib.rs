@@ -216,17 +216,20 @@ mod tests {
             let entry = entry.unwrap();
             let path = entry.path();
 
-            println!("Testing if {:?} is deserializable", path);
+            let md = fs::metadata(&path).unwrap();
+            if md.is_file() {
+                println!("Testing if {:?} is deserializable", path);
 
-            let (api_filename, parsed_spec_json_str, spec_json_str) =
-                compare_spec_through_json(&path, &save_path_base);
+                let (api_filename, parsed_spec_json_str, spec_json_str) =
+                    compare_spec_through_json(&path, &save_path_base);
 
-            assert_eq!(
-                parsed_spec_json_str.lines().collect::<Vec<_>>(),
-                spec_json_str.lines().collect::<Vec<_>>(),
-                "contents did not match for api {}",
-                api_filename
-            );
+                assert_eq!(
+                    parsed_spec_json_str.lines().collect::<Vec<_>>(),
+                    spec_json_str.lines().collect::<Vec<_>>(),
+                    "contents did not match for api {}",
+                    api_filename
+                );
+            }
         }
     }
 
