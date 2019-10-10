@@ -33,36 +33,38 @@ impl Spec {
         root: &'a Path,
     ) -> Result<BTreeMap<String, Schema>> {
         // reads schemas from file
-        fn read_schemas(path: &Path) -> impl Iterator<Item = (String, Schema)> {
-            let file = File::open(&path).unwrap();
+        fn read_schemas(path: &Path) -> Result<impl Iterator<Item = (String, Schema)>> {
+            let file = File::open(&path)?;
             let reader = BufReader::new(file);
-            let ext = path.extension().unwrap().to_str().unwrap();
 
-            let map: Option<BTreeMap<String, Schema>> = match ext {
-                "yaml" | "yml" => serde_yaml::from_reader(reader).ok(),
-                "json" => serde_json::from_reader(reader).ok(),
-                _ => None,
-            };
+            let map: Option<BTreeMap<String, Schema>> = path
+                .extension()
+                .and_then(std::ffi::OsStr::to_str)
+                .and_then(|ext| match ext {
+                    "yaml" | "yml" => serde_yaml::from_reader(reader).ok(),
+                    "json" => serde_json::from_reader(reader).ok(),
+                    _ => None,
+                });
 
-            map.into_iter().flat_map(|kv| kv.into_iter())
+            Ok(map.into_iter().flat_map(|kv| kv.into_iter()))
         }
 
         // creates file path,
         // removing everything after '#'
-        fn ref_file<'a>(ref_path: &'a String) -> &'a str {
-            ref_path.split("#").next().expect("failed to get ref path")
+        fn ref_file<'a>(ref_path: &'a String) -> Option<&'a str> {
+            ref_path.split("#").next()
         }
 
         fn schemas_from_ref(
             root: &Path,
             ref_path: &str,
             a: &BTreeMap<String, Schema>,
-        ) -> BTreeMap<String, Schema> {
+        ) -> Result<BTreeMap<String, Schema>> {
             let mut path: PathBuf = root.join(&ref_path);
 
             // read schemas from file to map b,
             // filtering out schemas that are already in map a
-            let b: BTreeMap<String, Schema> = read_schemas(&path)
+            let b: BTreeMap<String, Schema> = read_schemas(&path)?
                 .filter(|(k, _)| !a.contains_key(k))
                 .collect();
 
@@ -73,25 +75,30 @@ impl Spec {
             // create next root path by popping filename from path
             path.pop();
 
-            // fold values in map b with map c
-            // (which contains now all the schemas)
-            // recursively so we keep track of collected schemas so far
-            b.values().fold(c, |acc, schema| {
-                schema
-                    .iter_ref_paths()
-                    .map(ref_file)
-                    .unique()
-                    .flat_map(|ref_path| schemas_from_ref(&path, ref_path, &acc))
-                    .collect()
-            })
+            Ok(
+                // fold values in map b with map c
+                // (which contains now all the schemas)
+                // recursively so we keep track of collected schemas so far
+                b.values().fold(c, |acc, schema| {
+                    schema
+                        .iter_ref_paths()
+                        .filter_map(ref_file)
+                        .unique()
+                        .flat_map(|ref_path| schemas_from_ref(&path, ref_path, &acc))
+                        .flatten()
+                        .collect()
+                }),
+            )
         }
 
+        // collect and return schemas
         Ok(self
             .iter_schemas()
             .flat_map(|schema| schema.iter_ref_paths())
-            .map(ref_file)
+            .filter_map(ref_file)
             .unique()
             .flat_map(move |path| schemas_from_ref(&root, path, &BTreeMap::new()))
+            .flatten()
             .collect())
     }
 
