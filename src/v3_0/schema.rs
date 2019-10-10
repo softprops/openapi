@@ -87,47 +87,60 @@ impl Spec {
         }
 
         Ok(self
-            .iter_ref_paths()
+            .iter_schemas()
+            .flat_map(|schema| schema.iter_ref_paths())
             .map(ref_file)
             .unique()
             .flat_map(move |path| schemas_from_ref(&root, path, &BTreeMap::new()))
             .collect())
     }
 
-    pub fn iter_ref_paths<'a>(&'a self) -> Box<dyn Iterator<Item = &'a String> + 'a> {
-        // helper function to map ObjectOrReference schemas
-        fn map_obj_or_refence<'a>(
-            iter: impl Iterator<Item = &'a ObjectOrReference<Schema>>,
-        ) -> impl Iterator<Item = &'a String> {
-            iter.map(|obj_or_ref| match obj_or_ref {
-                ObjectOrReference::Object(schema) => Some(schema),
+    // iterates all the schemas in this Spec
+    pub fn iter_schemas<'a>(&'a self) -> impl Iterator<Item = &'a Schema> {
+        // helper function to map ObjectOrReference inner types
+        fn map_obj_or_refence<'a, T: 'a>(
+            iter: impl Iterator<Item = &'a ObjectOrReference<T>>,
+        ) -> impl Iterator<Item = &'a T> {
+            iter.filter_map(|obj_or_ref| match obj_or_ref {
+                ObjectOrReference::Object(t) => Some(t),
                 _ => None,
             })
-            .filter_map(|x| x)
-            .flat_map(|schema| schema.iter_ref_paths())
         };
 
-        Box::new(
-            self.components.iter().flat_map(|components| {
-                components
-                    .schemas
-                    .iter()
-                    .flat_map(|hashmap| map_obj_or_refence(hashmap.values()))
-            }), //  .chain(self.paths.values().map(|p|{
-                //      [p.get,p.put,p.post,p.delete,p.options,p.head,p.patch,p.trace].iter()
-                //          .filter_map(Option::Some)
-                //          .map(|o| {
-                //              o.iter().map(|op| {
-                //                  op.request_body.iter().map(|obj_or_ref| match obj_or_ref {
-                //                      ObjectOrReference::Object(requestbody) => {
-                //                          requestbody.content.values().
-                //                      _ => None,
-                //                  })
-                //                  .filter_map(|r| r)
-                //              })
-                //          })
-                // })
-        )
+        let components_schemas = self.components.iter().flat_map(|components| {
+            components
+                .schemas
+                .iter()
+                .flat_map(|hashmap| map_obj_or_refence(hashmap.values()))
+        });
+
+        let path_schemas = self.paths.values().flat_map(move |p| {
+            std::iter::empty()
+                .chain(p.get.iter())
+                .chain(p.put.iter())
+                .chain(p.post.iter())
+                .chain(p.delete.iter())
+                .chain(p.options.iter())
+                .chain(p.head.iter())
+                .chain(p.patch.iter())
+                .chain(p.trace.iter())
+                .flat_map(|op| {
+                    // get mediatype items from both response and request
+                    let responses = op
+                        .responses
+                        .values()
+                        .filter_map(|resp| resp.content.as_ref())
+                        .flat_map(|r| r.values());
+
+                    let request =
+                        map_obj_or_refence(op.request_body.iter()).flat_map(|b| b.content.values());
+
+                    responses.chain(request)
+                })
+                .flat_map(|mediatype| map_obj_or_refence(mediatype.schema.iter()))
+        });
+
+        components_schemas.chain(path_schemas)
     }
 }
 
