@@ -237,9 +237,16 @@ mod tests {
     fn can_collect_refs_v3() {
         let mut openapi = from_path("data/v3.0/farm.yaml").unwrap();
         if let OpenApi::V3_0(ref mut spec) = openapi {
-            dbg!(&spec);
-            let schemas = spec.collect_ref_schemas(Path::new("data/v3.0"));
+            let schemas = spec.collect_schemas(Path::new("data/v3.0")).unwrap();
             dbg!(&schemas);
+            assert!(schemas.contains_key("Dog"));
+            assert!(schemas.contains_key("Cat"));
+            assert!(schemas.contains_key("Cow"));
+            assert!(schemas.contains_key("Loop"));
+            assert!(schemas.contains_key("Loop2"));
+            assert!(schemas.contains_key("Loop3"));
+            assert!(schemas.contains_key("Farm"));
+            assert!(schemas.contains_key("RecursiveFarm"));
         }
     }
 }

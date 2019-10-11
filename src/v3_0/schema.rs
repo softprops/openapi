@@ -5,8 +5,8 @@ use semver;
 use serde::{Deserialize, Serialize};
 use serde_json;
 use std::collections::BTreeMap;
-use std::fs::File;
-use std::io::BufReader;
+use std::io::Error as IoError;
+use std::io::ErrorKind;
 use std::path::{Path, PathBuf};
 use url;
 use url_serde;
@@ -28,31 +28,30 @@ impl Spec {
         }
     }
 
-    pub fn collect_ref_schemas<'a>(
-        &'a mut self,
-        root: &'a Path,
-    ) -> Result<BTreeMap<String, Schema>> {
+    pub fn collect_schemas<'a>(&'a mut self, root: &'a Path) -> Result<BTreeMap<String, Schema>> {
         // reads schemas from file
         fn read_schemas(path: &Path) -> Result<impl Iterator<Item = (String, Schema)>> {
-            let file = File::open(&path)?;
-            let reader = BufReader::new(file);
+            let ext: Option<&str> = path.extension().and_then(std::ffi::OsStr::to_str);
+            let data = std::fs::read_to_string(path)?;
+            let map: BTreeMap<String, Schema> = match ext {
+                Some("yaml") | Some("yml") => serde_yaml::from_str(&data)?,
+                Some("json") => serde_json::from_str(&data)?,
+                _ => Err(Error::Io(IoError::new(
+                    ErrorKind::Other,
+                    "unsupported file type",
+                )))?,
+            };
 
-            let map: Option<BTreeMap<String, Schema>> = path
-                .extension()
-                .and_then(std::ffi::OsStr::to_str)
-                .and_then(|ext| match ext {
-                    "yaml" | "yml" => serde_yaml::from_reader(reader).ok(),
-                    "json" => serde_json::from_reader(reader).ok(),
-                    _ => None,
-                });
-
-            Ok(map.into_iter().flat_map(|kv| kv.into_iter()))
+            Ok(map.into_iter().into_iter())
         }
 
         // creates file path,
         // removing everything after '#'
         fn ref_file<'a>(ref_path: &'a String) -> Option<&'a str> {
-            ref_path.split("#").next()
+            ref_path
+                .split("#")
+                .next()
+                .and_then(|p| if !p.is_empty() { Some(p) } else { None })
         }
 
         fn schemas_from_ref(
@@ -79,17 +78,37 @@ impl Spec {
                 // fold values in map b with map c
                 // (which contains now all the schemas)
                 // recursively so we keep track of collected schemas so far
-                b.values().fold(c, |acc, schema| {
-                    schema
-                        .iter_ref_paths()
-                        .filter_map(ref_file)
-                        .unique()
-                        .flat_map(|ref_path| schemas_from_ref(&path, ref_path, &acc))
-                        .flatten()
-                        .collect()
-                }),
+                b.values()
+                    .fold(c, |mut acc: BTreeMap<String, Schema>, schema| {
+                        acc.extend(
+                            schema
+                                .iter_ref_paths()
+                                .filter_map(ref_file)
+                                .unique()
+                                .flat_map(|ref_path| schemas_from_ref(&path, ref_path, &acc))
+                                .flatten()
+                                .collect::<BTreeMap<String, Schema>>(),
+                        );
+
+                        acc
+                    }),
             )
         }
+
+        let component_schemas = self
+            .components
+            .iter()
+            .flat_map(|components| {
+                components
+                    .schemas
+                    .iter()
+                    .flatten()
+                    .filter_map(|(k, v)| match v {
+                        ObjectOrReference::Object(t) => Some((k.clone(), t.clone())),
+                        _ => None,
+                    })
+            })
+            .collect::<BTreeMap<String, Schema>>();
 
         // collect and return schemas
         Ok(self
@@ -99,6 +118,7 @@ impl Spec {
             .unique()
             .flat_map(move |path| schemas_from_ref(&root, path, &BTreeMap::new()))
             .flatten()
+            .chain(component_schemas)
             .collect())
     }
 
