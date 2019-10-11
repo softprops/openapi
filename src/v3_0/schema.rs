@@ -28,7 +28,7 @@ impl Spec {
         }
     }
 
-    pub fn collect_schemas<'a>(&'a mut self, root: &'a Path) -> Result<BTreeMap<String, Schema>> {
+    pub fn collect_schemas<'a>(&'a self, root: &'a Path) -> Result<BTreeMap<String, Schema>> {
         // reads schemas from file
         fn read_schemas(path: &Path) -> Result<impl Iterator<Item = (String, Schema)>> {
             let ext: Option<&str> = path.extension().and_then(std::ffi::OsStr::to_str);
