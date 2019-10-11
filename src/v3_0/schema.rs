@@ -4,7 +4,7 @@ use itertools::Itertools;
 use semver;
 use serde::{Deserialize, Serialize};
 use serde_json;
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashMap};
 use std::io::Error as IoError;
 use std::io::ErrorKind;
 use std::path::{Path, PathBuf};
@@ -28,21 +28,20 @@ impl Spec {
         }
     }
 
-    pub fn collect_schemas<'a>(&'a self, root: &'a Path) -> Result<BTreeMap<String, Schema>> {
+    pub fn collect_schemas<'a>(&'a self, root: &'a Path) -> Result<HashMap<String, Schema>> {
         // reads schemas from file
-        fn read_schemas(path: &Path) -> Result<impl Iterator<Item = (String, Schema)>> {
+        fn read_schemas(path: &Path) -> Result<HashMap<String, Schema>> {
             let ext: Option<&str> = path.extension().and_then(std::ffi::OsStr::to_str);
             let data = std::fs::read_to_string(path)?;
-            let map: BTreeMap<String, Schema> = match ext {
+
+            Ok(match ext {
                 Some("yaml") | Some("yml") => serde_yaml::from_str(&data)?,
                 Some("json") => serde_json::from_str(&data)?,
                 _ => Err(Error::Io(IoError::new(
                     ErrorKind::Other,
                     "unsupported file type",
                 )))?,
-            };
-
-            Ok(map.into_iter().into_iter())
+            })
         }
 
         // creates file path,
@@ -57,19 +56,20 @@ impl Spec {
         fn schemas_from_ref(
             root: &Path,
             ref_path: &str,
-            a: &BTreeMap<String, Schema>,
-        ) -> Result<BTreeMap<String, Schema>> {
+            a: &HashMap<String, Schema>,
+        ) -> Result<HashMap<String, Schema>> {
             let mut path: PathBuf = root.join(&ref_path);
 
             // read schemas from file to map b,
             // filtering out schemas that are already in map a
-            let b: BTreeMap<String, Schema> = read_schemas(&path)?
+            let b: HashMap<String, Schema> = read_schemas(&path)?
+                .into_iter()
                 .filter(|(k, _)| !a.contains_key(k))
                 .collect();
 
-            // merge a with b to map c
-            let mut c = a.clone();
-            c.extend(b.clone());
+            // merge together in a map
+            let mut merged = a.clone();
+            merged.extend(b.clone());
 
             // create next root path by popping filename from path
             path.pop();
@@ -79,16 +79,12 @@ impl Spec {
                 // (which contains now all the schemas)
                 // recursively so we keep track of collected schemas so far
                 b.values()
-                    .fold(c, |mut acc: BTreeMap<String, Schema>, schema| {
-                        acc.extend(
-                            schema
-                                .iter_ref_paths()
-                                .filter_map(ref_file)
-                                .unique()
-                                .flat_map(|ref_path| schemas_from_ref(&path, ref_path, &acc))
-                                .flatten()
-                                .collect::<BTreeMap<String, Schema>>(),
-                        );
+                    .fold(merged, |mut acc: HashMap<String, Schema>, schema| {
+                        for ref_path in schema.iter_ref_paths().filter_map(ref_file).unique() {
+                            if let Ok(treemap) = schemas_from_ref(&path, ref_path, &acc) {
+                                acc.extend(treemap);
+                            }
+                        }
 
                         acc
                     }),
@@ -108,7 +104,7 @@ impl Spec {
                         _ => None,
                     })
             })
-            .collect::<BTreeMap<String, Schema>>();
+            .collect::<HashMap<String, Schema>>();
 
         // collect and return schemas
         Ok(self
@@ -116,7 +112,7 @@ impl Spec {
             .flat_map(|schema| schema.iter_ref_paths())
             .filter_map(ref_file)
             .unique()
-            .flat_map(move |path| schemas_from_ref(&root, path, &BTreeMap::new()))
+            .flat_map(move |path| schemas_from_ref(&root, path, &HashMap::new()))
             .flatten()
             .chain(component_schemas)
             .collect())
@@ -719,20 +715,20 @@ pub struct Response {
     /// insensitive. If a response header is defined with the name `"Content-Type"`, it SHALL
     /// be ignored.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub headers: Option<BTreeMap<String, ObjectOrReference<Header>>>,
+    pub headers: Option<HashMap<String, ObjectOrReference<Header>>>,
 
     /// A map containing descriptions of potential response payloads. The key is a media type
     /// or [media type range](https://tools.ietf.org/html/rfc7231#appendix-D) and the value
     /// describes it. For responses that match multiple keys, only the most specific key is
     /// applicable. e.g. text/plain overrides text/*
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub content: Option<BTreeMap<String, MediaType>>,
+    pub content: Option<HashMap<String, MediaType>>,
 
     /// A map of operations links that can be followed from the response. The key of the map
     /// is a short name for the link, following the naming constraints of the names for
     /// [Component Objects](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#componentsObject).
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub links: Option<BTreeMap<String, ObjectOrReference<Link>>>,
+    pub links: Option<HashMap<String, ObjectOrReference<Link>>>,
     // TODO: Add "Specification Extensions" https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#specificationExtensions}
 }
 
@@ -796,7 +792,7 @@ pub struct RequestBody {
     /// [media type range](https://tools.ietf.org/html/rfc7231#appendix-D) and the
     /// value describes it. For requests that match multiple keys, only the most specific key
     /// is applicable. e.g. text/plain overrides text/*
-    pub content: BTreeMap<String, MediaType>,
+    pub content: HashMap<String, MediaType>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub required: Option<bool>,
@@ -838,9 +834,9 @@ pub enum Link {
         // /// [parameter location](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#parameterIn)
         // /// `[{in}.]{name}` for operations that use the same parameter name in different
         // /// locations (e.g. path.id).
-        // parameters: BTreeMap<String, Any | {expression}>,
+        // parameters: HashMap<String, Any | {expression}>,
         #[serde(skip_serializing_if = "Option::is_none")]
-        parameters: Option<BTreeMap<String, String>>,
+        parameters: Option<HashMap<String, String>>,
 
         // FIXME: Implement
         // /// A literal value or
@@ -872,9 +868,9 @@ pub enum Link {
         // /// [parameter location](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#parameterIn)
         // /// `[{in}.]{name}` for operations that use the same parameter name in different
         // /// locations (e.g. path.id).
-        // parameters: BTreeMap<String, Any | {expression}>,
+        // parameters: HashMap<String, Any | {expression}>,
         #[serde(skip_serializing_if = "Option::is_none")]
-        parameters: Option<BTreeMap<String, String>>,
+        parameters: Option<HashMap<String, String>>,
 
         // FIXME: Implement
         // /// A literal value or
@@ -912,7 +908,7 @@ pub struct MediaType {
     /// only apply to `requestBody` objects when the media type is `multipart`
     /// or `application/x-www-form-urlencoded`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub encoding: Option<BTreeMap<String, Encoding>>,
+    pub encoding: Option<HashMap<String, Encoding>>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
@@ -928,7 +924,7 @@ pub enum MediaTypeExample {
     /// the `example` field. Furthermore, if referencing a `schema` which contains an
     /// example, the `examples` value SHALL override the example provided by the schema.
     Examples {
-        examples: BTreeMap<String, ObjectOrReference<Example>>,
+        examples: HashMap<String, ObjectOrReference<Example>>,
     },
 }
 
@@ -949,7 +945,7 @@ pub struct Encoding {
     /// ignored in this section. This property SHALL be ignored if the request body
     /// media type is not a `multipart`.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub headers: Option<BTreeMap<String, ObjectOrReference<Header>>>,
+    pub headers: Option<HashMap<String, ObjectOrReference<Header>>>,
 
     /// Describes how a specific property value will be serialized depending on its type.
     /// See [Parameter Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#parameterObject)
@@ -1063,7 +1059,7 @@ pub struct ImplicitFlow {
     pub authorization_url: Url,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub refresh_url: Option<Url>,
-    pub scopes: BTreeMap<String, String>,
+    pub scopes: HashMap<String, String>,
 }
 
 /// Configuration details for a password OAuth Flow
@@ -1075,7 +1071,7 @@ pub struct PasswordFlow {
     token_url: Url,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub refresh_url: Option<Url>,
-    pub scopes: BTreeMap<String, String>,
+    pub scopes: HashMap<String, String>,
 }
 
 /// Configuration details for a client credentials OAuth Flow
@@ -1087,7 +1083,7 @@ pub struct ClientCredentialsFlow {
     token_url: Url,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub refresh_url: Option<Url>,
-    pub scopes: BTreeMap<String, String>,
+    pub scopes: HashMap<String, String>,
 }
 
 /// Configuration details for a authorization code OAuth Flow
@@ -1100,7 +1096,7 @@ pub struct AuthorizationCodeFlow {
     token_url: Url,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub refresh_url: Option<Url>,
-    pub scopes: BTreeMap<String, String>,
+    pub scopes: HashMap<String, String>,
 }
 
 // TODO: Implement
