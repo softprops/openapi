@@ -672,6 +672,10 @@ pub struct Schema {
     /// JSON Schema.
     #[serde(rename = "allOf", skip_serializing_if = "Option::is_none")]
     pub all_of: Option<Vec<ObjectOrReference<Schema>>>,
+
+    /// [Specification extensions](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#specificationExtensions)
+    #[serde(flatten)]
+    pub extensions: HashMap<String, String>,
 }
 
 impl Schema {

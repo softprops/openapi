@@ -247,6 +247,12 @@ mod tests {
             assert!(schemas.contains_key("Loop3"));
             assert!(schemas.contains_key("Farm"));
             assert!(schemas.contains_key("RecursiveFarm"));
+
+            let recursive_farm = schemas.get("RecursiveFarm").unwrap();
+            assert_eq!(
+                recursive_farm.properties.as_ref().unwrap()["farm"].extensions["x-barn-color"],
+                "red"
+            );
         }
     }
 }

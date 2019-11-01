@@ -29,6 +29,7 @@ components:
       properties:
         farm:
           $ref: "#components/schemas/RecursiveFarm"
+          x-barn-color: red
         loop:
           $ref: "extra/loop.yaml#/Loop"
 
