@@ -3,7 +3,7 @@
 use semver;
 use serde::{Deserialize, Serialize};
 use serde_json;
-use std::collections::{HashMap, BTreeMap};
+use std::collections::{BTreeMap, HashMap};
 use url;
 use url_serde;
 
@@ -549,6 +549,12 @@ pub struct Schema {
     /// [not](https://swagger.io/docs/specification/data-models/oneof-anyof-allof-not/#not)
     #[serde(rename = "not", skip_serializing_if = "Option::is_none")]
     pub not: Option<Vec<ObjectOrReference<Schema>>>,
+
+    #[serde(rename = "maxLength", skip_serializing_if = "Option::is_none")]
+    pub max_length: Option<u32>,
+
+    #[serde(rename = "minLength", skip_serializing_if = "Option::is_none")]
+    pub min_length: Option<u32>,
 
     /// [Specification extensions](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#specificationExtensions)
     #[serde(flatten)]
