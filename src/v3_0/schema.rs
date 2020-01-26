@@ -3,7 +3,7 @@
 use semver;
 use serde::{Deserialize, Serialize};
 use serde_json;
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, HashMap};
 use url;
 use url_serde;
 
@@ -528,8 +528,37 @@ pub struct Schema {
 
     /// Inline or referenced schema MUST be of a [Schema Object](#schemaObject) and not a standard
     /// JSON Schema.
+    /// [allOf](https://swagger.io/docs/specification/data-models/oneof-anyof-allof-not/#allof)
     #[serde(rename = "allOf", skip_serializing_if = "Option::is_none")]
     pub all_of: Option<Vec<ObjectOrReference<Schema>>>,
+
+    /// Inline or referenced schema MUST be of a [Schema Object](#schemaObject) and not a standard
+    /// JSON Schema.
+    /// [oneOf](https://swagger.io/docs/specification/data-models/oneof-anyof-allof-not/#oneof)
+    #[serde(rename = "oneOf", skip_serializing_if = "Option::is_none")]
+    pub one_of: Option<Vec<ObjectOrReference<Schema>>>,
+
+    /// Inline or referenced schema MUST be of a [Schema Object](#schemaObject) and not a standard
+    /// JSON Schema.
+    /// [anyOf](https://swagger.io/docs/specification/data-models/oneof-anyof-allof-not/#anyof)
+    #[serde(rename = "anyOf", skip_serializing_if = "Option::is_none")]
+    pub any_of: Option<Vec<ObjectOrReference<Schema>>>,
+
+    /// Inline or referenced schema MUST be of a [Schema Object](#schemaObject) and not a standard
+    /// JSON Schema.
+    /// [not](https://swagger.io/docs/specification/data-models/oneof-anyof-allof-not/#not)
+    #[serde(rename = "not", skip_serializing_if = "Option::is_none")]
+    pub not: Option<Vec<ObjectOrReference<Schema>>>,
+
+    #[serde(rename = "maxLength", skip_serializing_if = "Option::is_none")]
+    pub max_length: Option<u32>,
+
+    #[serde(rename = "minLength", skip_serializing_if = "Option::is_none")]
+    pub min_length: Option<u32>,
+
+    /// [Specification extensions](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#specificationExtensions)
+    #[serde(flatten)]
+    pub extensions: HashMap<String, String>,
 }
 
 /// Describes a single response from an API Operation, including design-time, static `links`

@@ -98,11 +98,8 @@ mod tests {
     };
 
     /// Helper function to write string to file.
-    fn write_to_file<P>(
-        path: P,
-        filename: &str,
-        data: &str,
-    ) where
+    fn write_to_file<P>(path: P, filename: &str, data: &str)
+    where
         P: AsRef<Path> + std::fmt::Debug,
     {
         println!("    Saving string to {:?}...", path);
@@ -230,6 +227,23 @@ mod tests {
                 "contents did not match for api {}",
                 api_filename
             );
+        }
+    }
+
+    #[test]
+    fn can_deserialize_one_of_v3() {
+        let openapi = from_path("data/v3.0/petstore-expanded.yaml").unwrap();
+        if let OpenApi::V3_0(spec) = openapi {
+            let components = spec.components.unwrap();
+            let schemas = components.schemas.unwrap();
+            let obj_or_ref = schemas.get("PetSpecies");
+
+            if let Some(v3_0::ObjectOrReference::Object(schema)) = obj_or_ref {
+                // there should be 2 schemas in there
+                assert_eq!(schema.one_of.as_ref().unwrap().len(), 2);
+            } else {
+                panic!("object should have been schema");
+            }
         }
     }
 }
