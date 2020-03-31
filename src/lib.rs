@@ -246,4 +246,34 @@ mod tests {
             }
         }
     }
+/*    #[test]
+    fn can_deserialize_freenas() {
+        // tests::can_deserialize_freenas' panicked at 'called `Result::unwrap()` on an `Err` value: Yaml(Message("data did not match any variant of untagged enum OpenApi", None))', src\lib.rs:252:23
+        let openapi = from_path("data/v3.0/FreeNAS_openapi.yaml").unwrap();
+        if let OpenApi::V3_0(spec) = openapi {
+            let components = spec.components.unwrap();
+            let schemas = components.schemas.unwrap();
+            let obj_or_ref = schemas.get("zfs_snapshot_rollback");
+
+            if obj_or_ref.is_none() {
+                panic!("object should have been an object");
+            }
+        }
+    }
+*/    
+    #[test]
+    fn can_deserialize_prtg() {
+        // tests::can_deserialize_freenas' panicked at 'called `Result::unwrap()` on an `Err` value: Yaml(Message("data did not match any variant of untagged enum OpenApi", None))', src\lib.rs:252:23
+        let openapi = from_path("data/v3.0/PRTG_openapi.yaml").unwrap();
+        if let OpenApi::V3_0(spec) = openapi {
+            let components = spec.components.unwrap();
+            let schemas = components.schemas.unwrap();
+            let obj_or_ref = schemas.get("prtg_status_warnings");
+
+            if obj_or_ref.is_none() {
+                panic!("object should have been an object");
+            }
+        }
+    }
+    
 }
