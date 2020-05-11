@@ -408,8 +408,13 @@ pub struct Parameter {
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
 enum ParameterStyle {
+    Matrix,
+    Label,
     Form,
     Simple,
+    SpaceDelimited,
+    PipeDelimited,
+    DeepObject,
 }
 
 // FIXME: Verify against OpenAPI 3.0
