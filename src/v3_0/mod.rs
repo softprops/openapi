@@ -5,6 +5,7 @@
 //! for more information.
 
 mod components;
+mod extension;
 mod schema;
 
 pub use crate::v3_0::{components::*, schema::*};
