@@ -1,5 +1,6 @@
 //! Schema specification for [OpenAPI 3.0.0](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md)
 
+use crate::v3_0::extension::Extensions;
 use semver;
 use serde::{Deserialize, Serialize};
 use serde_json;
@@ -80,7 +81,8 @@ pub struct Spec {
     /// Additional external documentation.
     #[serde(skip_serializing_if = "Option::is_none", rename = "externalDocs")]
     pub external_docs: Option<ExternalDoc>,
-    // TODO: Add "Specification Extensions" https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#specificationExtensions}
+    #[serde(flatten)]
+    pub extensions: Extensions,
 }
 
 /// General information about the API.
@@ -134,7 +136,8 @@ pub struct Contact {
     // TODO: Make sure the email is a valid email
     #[serde(skip_serializing_if = "Option::is_none")]
     pub email: Option<String>,
-    // TODO: Add "Specification Extensions" https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#specificationExtensions
+    #[serde(flatten)]
+    pub extensions: Extensions,
 }
 
 /// License information for the exposed API.
@@ -147,7 +150,8 @@ pub struct License {
     /// A URL to the license used for the API.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub url: Option<Url>,
-    // TODO: Add "Specification Extensions" https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#specificationExtensions}
+    #[serde(flatten)]
+    pub extensions: Extensions,
 }
 
 /// An object representing a Server.
@@ -256,9 +260,9 @@ pub struct PathItem {
     /// [OpenAPI Object's components/parameters](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#componentsParameters).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub parameters: Option<Vec<ObjectOrReference<Parameter>>>,
-    // TODO: Add "Specification Extensions" https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#specificationExtensions}
+    #[serde(flatten)]
+    pub extensions: Extensions,
 }
-
 /// Describes a single API operation on a path.
 ///
 /// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#operationObject>.
@@ -350,6 +354,8 @@ pub struct Operation {
     /// this value.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub servers: Option<Vec<Server>>,
+    #[serde(flatten)]
+    pub extensions: Extensions,
 }
 
 // FIXME: Verify against OpenAPI 3.0
@@ -590,7 +596,8 @@ pub struct Response {
     /// [Component Objects](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#componentsObject).
     #[serde(skip_serializing_if = "Option::is_none")]
     pub links: Option<BTreeMap<String, ObjectOrReference<Link>>>,
-    // TODO: Add "Specification Extensions" https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#specificationExtensions}
+    #[serde(flatten)]
+    pub extensions: Extensions,
 }
 
 /// The Header Object follows the structure of the
@@ -713,7 +720,8 @@ pub enum Link {
         /// A server object to be used by the target operation.
         #[serde(skip_serializing_if = "Option::is_none")]
         server: Option<Server>,
-        // TODO: Add "Specification Extensions" https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#specificationExtension
+        #[serde(flatten)]
+        extensions: Extensions,
     },
     /// The name of an _existing_, resolvable OAS operation, as defined with a unique
     /// `operationId`. This field is mutually exclusive of the `operationRef` field.
@@ -747,7 +755,8 @@ pub enum Link {
         /// A server object to be used by the target operation.
         #[serde(skip_serializing_if = "Option::is_none")]
         server: Option<Server>,
-        // TODO: Add "Specification Extensions" https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#specificationExtension
+        #[serde(flatten)]
+        extensions: Extensions,
     },
 }
 
@@ -860,8 +869,8 @@ pub struct Example {
     // /// and `externalValue` field are mutually exclusive.
     // #[serde(skip_serializing_if = "Option::is_none")]
     // pub externalValue: Option<String>,
-
-    // TODO: Add "Specification Extensions" https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#specificationExtensions}
+    #[serde(flatten)]
+    pub extensions: Extensions,
 }
 
 /// Defines a security scheme that can be used by the operations. Supported schemes are
@@ -998,8 +1007,8 @@ pub struct Tag {
     // /// Additional external documentation for this tag.
     // #[serde(skip_serializing_if = "Option::is_none")]
     // pub external_docs: Option<Vec<ExternalDoc>>,
-
-    // TODO: Add "Specification Extensions" https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#specificationExtensions}
+    #[serde(flatten)]
+    pub extensions: Extensions,
 }
 
 /// Allows referencing an external resource for extended documentation.
@@ -1014,7 +1023,8 @@ pub struct ExternalDoc {
     /// [CommonMark syntax](http://spec.commonmark.org/) MAY be used for rich text representation.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
-    // TODO: Add "Specification Extensions" https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#specificationExtensions}
+    #[serde(flatten)]
+    pub extensions: Extensions,
 }
 
 #[cfg(test)]
