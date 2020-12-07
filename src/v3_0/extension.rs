@@ -1,13 +1,13 @@
 use std::collections::HashMap;
 use std::fmt;
 
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
 use serde::de::{MapAccess, Visitor};
 use serde::ser::SerializeMap;
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-#[derive(Debug, Eq, PartialEq, Clone)]
 /// Contains openapi specification extensions
 /// see https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#specificationExtensions
+#[derive(Debug, Eq, PartialEq, Clone)]
 pub struct Extensions(HashMap<String, serde_json::Value>);
 
 impl Extensions {
@@ -34,8 +34,8 @@ impl Default for Extensions {
 
 impl<'de> Deserialize<'de> for Extensions {
     fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
-        where
-            D: Deserializer<'de>,
+    where
+        D: Deserializer<'de>,
     {
         struct ExtensionsVisitor;
         impl<'de> Visitor<'de> for ExtensionsVisitor {
@@ -46,8 +46,8 @@ impl<'de> Deserialize<'de> for Extensions {
             }
 
             fn visit_map<V>(self, mut map: V) -> Result<Extensions, V::Error>
-                where
-                    V: MapAccess<'de>,
+            where
+                V: MapAccess<'de>,
             {
                 let mut extensions = Extensions::default();
                 while let Some(key) = map.next_key::<String>()? {
@@ -64,8 +64,8 @@ impl<'de> Deserialize<'de> for Extensions {
 
 impl Serialize for Extensions {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: Serializer,
+    where
+        S: Serializer,
     {
         let mut map = serializer.serialize_map(Some(self.0.len()))?;
         for (k, v) in self.0.clone() {
