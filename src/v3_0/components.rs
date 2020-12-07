@@ -1,5 +1,6 @@
 use crate::v3_0::{
-    Callback, Example, Header, Link, Parameter, RequestBody, Response, Schema, SecurityScheme,
+    Callback, Example, Extensions, Header, Link, Parameter, RequestBody, Response, Schema,
+    SecurityScheme,
 };
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
@@ -57,5 +58,7 @@ pub struct Components {
     /// An object to hold reusable Callback Objects.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub callbacks: Option<BTreeMap<String, ObjectOrReference<Callback>>>,
-    // TODO: Add "Specification Extensions" https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#specificationExtensions}
+
+    #[serde(flatten)]
+    pub extensions: Extensions,
 }
