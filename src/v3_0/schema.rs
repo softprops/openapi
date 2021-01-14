@@ -498,21 +498,44 @@ pub struct Schema {
 
     // The following properties are taken directly from the JSON Schema definition and
     // follow the same specifications:
-    // multipleOf
-    // maximum
-    // exclusiveMaximum
-    // minimum
-    // exclusiveMinimum
-    // maxLength
-    // minLength
-    // pattern (This string SHOULD be a valid regular expression, according to the ECMA 262 regular expression dialect)
-    // maxItems
-    // minItems
-    // uniqueItems
-    // maxProperties
-    // minProperties
-    // required
-    // enum
+    #[serde(skip_serializing_if = "Option::is_none", rename = "multipleOf")]
+    pub multiple_of: Option<u32>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub maximum: Option<i32>,
+
+    #[serde(skip_serializing_if = "Option::is_none", rename = "exclusiveMaximum")]
+    pub exclusive_maximum: Option<bool>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub minimum: Option<i32>,
+
+    #[serde(skip_serializing_if = "Option::is_none", rename = "exclusiveMinimum")]
+    pub exclusive_minimum: Option<bool>,
+
+    #[serde(skip_serializing_if = "Option::is_none", rename = "maxLength")]
+    pub max_length: Option<u32>,
+
+    #[serde(skip_serializing_if = "Option::is_none", rename = "minLength")]
+    pub min_length: Option<u32>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub pattern: Option<String>,
+
+    #[serde(skip_serializing_if = "Option::is_none", rename = "maxItems")]
+    pub max_items: Option<u32>,
+
+    #[serde(skip_serializing_if = "Option::is_none", rename = "minItems")]
+    pub min_items: Option<u32>,
+
+    #[serde(skip_serializing_if = "Option::is_none", rename = "uniqueItems")]
+    pub unique_items: Option<bool>,
+
+    #[serde(skip_serializing_if = "Option::is_none", rename = "maxProperties")]
+    pub max_properties: Option<u32>,
+
+    #[serde(skip_serializing_if = "Option::is_none", rename = "minProperties")]
+    pub min_properties: Option<u32>,
 
     // The following properties are taken from the JSON Schema definition but their
     // definitions were adjusted to the OpenAPI Specification.
@@ -533,9 +556,6 @@ pub struct Schema {
     /// `string`, then `default` can be `"foo"` but cannot be `1`.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub default: Option<serde_json::Value>,
-
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub minimum: Option<serde_json::Value>,
 
     /// Inline or referenced schema MUST be of a [Schema Object](#schemaObject) and not a standard
     /// JSON Schema.
@@ -560,12 +580,6 @@ pub struct Schema {
     /// [not](https://swagger.io/docs/specification/data-models/oneof-anyof-allof-not/#not)
     #[serde(rename = "not", skip_serializing_if = "Option::is_none")]
     pub not: Option<Vec<ObjectOrReference<Schema>>>,
-
-    #[serde(rename = "maxLength", skip_serializing_if = "Option::is_none")]
-    pub max_length: Option<u32>,
-
-    #[serde(rename = "minLength", skip_serializing_if = "Option::is_none")]
-    pub min_length: Option<u32>,
 
     /// [Specification extensions](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.2.md#specificationExtensions)
     #[serde(flatten)]
