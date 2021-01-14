@@ -9,7 +9,7 @@ use url;
 use url_serde;
 
 use crate::{
-    v3_0::components::{Components, ObjectOrReference},
+    v3_0::components::{BooleanObjectOrReference, Components, ObjectOrReference},
     Error, Result, MINIMUM_OPENAPI30_VERSION,
 };
 
@@ -471,7 +471,6 @@ pub struct Schema {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub nullable: Option<bool>,
 
-    // FIXME: Why can this be a "boolean" (as per the spec)? It doesn't make sense. Here it's not.
     /// Value can be boolean or object. Inline or referenced schema MUST be of a
     /// [Schema Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#schemaObject)
     /// and not a standard JSON Schema.
@@ -481,7 +480,7 @@ pub struct Schema {
         skip_serializing_if = "Option::is_none",
         rename = "additionalProperties"
     )]
-    pub additional_properties: Option<ObjectOrReference<Box<Schema>>>,
+    pub additional_properties: Option<BooleanObjectOrReference<Box<Schema>>>,
 
     /// A free-form property to include an example of an instance for this schema.
     /// To represent examples that cannot be naturally represented in JSON or YAML,
