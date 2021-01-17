@@ -3,8 +3,7 @@
 use crate::v3_0::extension::Extensions;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap};
-use url;
-use url_serde;
+use url::Url;
 
 use crate::{
     v3_0::components::{BooleanObjectOrReference, Components, ObjectOrReference},
@@ -108,16 +107,6 @@ pub struct Info {
     /// The license information for the exposed API.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub license: Option<License>,
-}
-
-/// Wraper around `url::Url` to fix serde issue
-#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
-pub struct Url(#[serde(with = "url_serde")] url::Url);
-
-impl Url {
-    pub fn parse<S: AsRef<str>>(input: S) -> std::result::Result<Url, url::ParseError> {
-        url::Url::parse(input.as_ref()).map(Url)
-    }
 }
 
 /// Contact information for the exposed API.
