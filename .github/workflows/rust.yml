@@ -1,0 +1,67 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os || 'ubuntu-latest' }}
+
+    strategy:
+      matrix:
+        name:
+          - linux/stable
+          - linux/beta
+          - macOS/stable
+          - windows/stable-x86_64-msvc
+          - windows/stable-i686-msvc
+          - windows/stable-x86_64-gnu
+          - windows/stable-i686-gnu
+
+        include:
+          - name: linux/beta
+            rust: beta
+          - name: macOS/stable
+            os: macOS-latest
+          - name: windows/stable-x86_64-msvc
+            os: windows-latest
+            target: x86_64-pc-windows-msvc
+          - name: windows/stable-i686-msvc
+            os: windows-latest
+            target: i686-pc-windows-msvc
+          - name: windows/stable-x86_64-gnu
+            os: windows-latest
+            rust: stable-x86_64-pc-windows-gnu
+            target: x86_64-pc-windows-gnu
+          - name: windows/stable-i686-gnu
+            os: windows-latest
+            rust: stable-i686-pc-windows-gnu
+            target: i686-pc-windows-gnu
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        toolchain: ${{ matrix.rust || 'stable' }}
+        target: ${{ matrix.target }}
+        profile: minimal
+        override: true
+
+    - name: Build
+      uses: actions-rs/cargo@v1
+      with:
+        command: build
+
+    - name: Run tests
+      uses: actions-rs/cargo@v1
+      with:
+        command: test
