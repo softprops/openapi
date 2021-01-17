@@ -8,4 +8,9 @@ mod components;
 mod extension;
 mod schema;
 
-pub use crate::v3_0::{components::*, schema::*};
+pub use crate::v3_0::{components::*, extension::*, schema::*};
+
+// Yet OpenAPI dont have an implemented representation
+// the `serde_json::Value` is used in place of a custom enum
+// We re-expose the `serde_json::Value`, this way users does not have to include the dependency.
+pub use serde_json::Value;
