@@ -14,6 +14,17 @@ pub enum ObjectOrReference<T> {
     },
 }
 
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
+#[serde(untagged)]
+pub enum BooleanObjectOrReference<T> {
+    Boolean(bool),
+    Object(T),
+    Ref {
+        #[serde(rename = "$ref")]
+        ref_path: String,
+    },
+}
+
 /// Holds a set of reusable objects for different aspects of the OAS.
 ///
 /// All objects defined within the components object will have no effect on the API unless
