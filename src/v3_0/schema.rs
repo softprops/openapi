@@ -898,7 +898,7 @@ pub enum SecurityScheme {
     Http {
         scheme: String,
         #[serde(rename = "bearerFormat")]
-        bearer_format: String,
+        bearer_format: Option<String>,
     },
     #[serde(rename = "oauth2")]
     OAuth2 { flows: Flows },

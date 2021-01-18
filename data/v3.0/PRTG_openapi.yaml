@@ -1,0 +1,112 @@
+#java -jar openapi-generator-cli.jar generate -g rust --library reqwest -t library/rust -i test/PRTG/PRTG_api.yaml -o test/PRTG
+openapi: 3.0.0
+info:
+  title: PRTG RESTful API
+  description: 'PRTG RESTful API, first stab [Paessler Docs](https://www.paessler.com/manuals/prtg/application_programming_interface_api_definition)'
+  version: v1.0
+paths:
+  '/api/status.json':
+    get:
+      summary: Returns PRTG Server Status
+      tags:
+        - prtg
+      parameters:
+        - name: username
+          in: query
+          required: true
+          schema:
+            type: string
+            title: username
+            nullable: false
+        - name: passhash
+          in: query
+          required: true
+          schema:
+            type: string
+            title: passhash
+            nullable: false
+      responses:
+        '200':
+          description: This is a comment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/prtg_status'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+servers:
+  - url: 'http://127.0.0.1'
+components:
+  schemas:
+    prtg_status:
+      title: status
+      type: object
+      properties:
+        Version:
+          title: ''
+          type: string
+          nullable: false
+        MaintExpiryDays:
+          type: string
+          nullable: false
+        MaxSensorCount:
+          type: string
+          nullable: true
+        TotalSens:
+          type: integer
+          nullable: true
+        Alarms:
+          type: string
+          nullable: true
+        UnknownSens:
+          type: string
+          nullable: true
+        WarnSens:
+          type: string
+          nullable: true
+        UnusualSens:
+          type: string
+          nullable: true
+        Warnings:
+          items:
+            $ref: '#/components/schemas/prtg_status_warnings'
+          type: array
+        additionalProperties: {}
+    prtg_status_warnings:
+      title: warnings
+      type: array
+      properties:
+        id:
+          type: string
+          nullable: false
+        type:
+          type: string
+          nullable: true
+        title:
+          type: string
+          nullable: true
+        message:
+          type: string
+          nullable: true
+        time:
+          type: integer
+          nullable: true
+      additionalProperties: {}
+  responses:
+    NotFound:
+      description: Endpoint not found
+    Found:
+      description: The API call was completed successfully and a new object was created (the redirection URL contains the new object id).
+    BadRequest:
+      description: The API call could not be completed successfully. The XML response contains the error message.
+    Unauthorized:
+      description: No authorization for this endpoint
+    Success:
+      description: 'The API call was completed successfully, the XML response contains the result data.'
+  securitySchemes:
+    basic:
+      type: http
+      scheme: basic
+      in:  header
+security:
+  - basic: []
