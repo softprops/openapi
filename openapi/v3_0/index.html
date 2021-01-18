@@ -1,0 +1,73 @@
+<!DOCTYPE html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="generator" content="rustdoc"><meta name="description" content="API documentation for the Rust `v3_0` mod in crate `openapi`."><meta name="keywords" content="rust, rustlang, rust-lang, v3_0"><title>openapi::v3_0 - Rust</title><link rel="stylesheet" type="text/css" href="../../normalize.css"><link rel="stylesheet" type="text/css" href="../../rustdoc.css" id="mainThemeStyle"><link rel="stylesheet" type="text/css" href="../../light.css"  id="themeStyle"><link rel="stylesheet" type="text/css" href="../../dark.css" disabled ><link rel="stylesheet" type="text/css" href="../../ayu.css" disabled ><script id="default-settings"></script><script src="../../storage.js"></script><noscript><link rel="stylesheet" href="../../noscript.css"></noscript><link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+<link rel="alternate icon" type="image/png" href="../../favicon-16x16.png">
+<link rel="alternate icon" type="image/png" href="../../favicon-32x32.png"><style type="text/css">#crate-search{background-image:url("../../down-arrow.svg");}</style></head><body class="rustdoc mod"><!--[if lte IE 8]><div class="warning">This old browser is unsupported and will most likely display funky things.</div><![endif]--><nav class="sidebar"><div class="sidebar-menu">&#9776;</div><a href='../../openapi/index.html'><div class='logo-container rust-logo'><img src='../../rust-logo.png' alt='logo'></div></a><p class="location">Module v3_0</p><div class="sidebar-elems"><div class="block items"><ul><li><a href="#structs">Structs</a></li><li><a href="#enums">Enums</a></li></ul></div><p class="location"><a href="../index.html">openapi</a></p><script>window.sidebarCurrent = {name: "v3_0", ty: "mod", relpath: "../"};</script><script defer src="../sidebar-items.js"></script></div></nav><div class="theme-picker"><button id="theme-picker" aria-label="Pick another theme!" aria-haspopup="menu"><img src="../../brush.svg" width="18" alt="Pick another theme!"></button><div id="theme-choices" role="menu"></div></div><script src="../../theme.js"></script><nav class="sub"><form class="search-form"><div class="search-container"><div><select id="crate-search"><option value="All crates">All crates</option></select><input class="search-input" name="search" disabled autocomplete="off" spellcheck="false" placeholder="Click or press ‘S’ to search, ‘?’ for more options…" type="search"></div><span class="help-button">?</span>
+                <a id="settings-menu" href="../../settings.html"><img src="../../wheel.svg" width="18" alt="Change settings"></a></div></form></nav><section id="main" class="content"><h1 class="fqn"><span class="out-of-band"><span id="render-detail"><a id="toggle-all-docs" href="javascript:void(0)" title="collapse all docs">[<span class="inner">&#x2212;</span>]</a></span><a class="srclink" href="../../src/openapi/v3_0/mod.rs.html#1-16" title="goto source code">[src]</a></span><span class="in-band">Module <a href="../index.html">openapi</a>::<wbr><a class="mod" href="">v3_0</a></span></h1><div class="docblock"><p>Support for OpenApi version 3.0.1 specification.</p>
+<p>See the
+<a href="https://github.com/OAI/OpenAPI-Specification/blob/0dd79f6/versions/3.0.1.md">specification</a>
+for more information.</p>
+</div><h2 id="structs" class="section-header"><a href="#structs">Structs</a></h2>
+<table><tr class="module-item"><td><a class="struct" href="struct.AuthorizationCodeFlow.html" title="openapi::v3_0::AuthorizationCodeFlow struct">AuthorizationCodeFlow</a></td><td class="docblock-short"><p>Configuration details for a authorization code OAuth Flow
+See [link]
+[link](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#oauth-flow-object</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.Callback.html" title="openapi::v3_0::Callback struct">Callback</a></td><td class="docblock-short"><p>A map of possible out-of band callbacks related to the parent operation. Each value in
+the map is a Path Item Object that describes a set of requests that may be initiated by
+the API provider and the expected responses. The key value used to identify the callback
+object is an expression, evaluated at runtime, that identifies a URL to use for the
+callback operation.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.ClientCredentialsFlow.html" title="openapi::v3_0::ClientCredentialsFlow struct">ClientCredentialsFlow</a></td><td class="docblock-short"><p>Configuration details for a client credentials OAuth Flow
+See [link]
+[link](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#oauth-flow-object</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.Components.html" title="openapi::v3_0::Components struct">Components</a></td><td class="docblock-short"><p>Holds a set of reusable objects for different aspects of the OAS.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.Contact.html" title="openapi::v3_0::Contact struct">Contact</a></td><td class="docblock-short"><p>Contact information for the exposed API.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.Encoding.html" title="openapi::v3_0::Encoding struct">Encoding</a></td><td class="docblock-short"><p>A single encoding definition applied to a single schema property.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.Example.html" title="openapi::v3_0::Example struct">Example</a></td><td class="docblock-short"><p>See <a href="https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#exampleObject">https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#exampleObject</a>.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.Extensions.html" title="openapi::v3_0::Extensions struct">Extensions</a></td><td class="docblock-short"><p>Contains openapi specification extensions
+see https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#specificationExtensions</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.ExternalDoc.html" title="openapi::v3_0::ExternalDoc struct">ExternalDoc</a></td><td class="docblock-short"><p>Allows referencing an external resource for extended documentation.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.Flows.html" title="openapi::v3_0::Flows struct">Flows</a></td><td class="docblock-short"><p>Allows configuration of the supported OAuth Flows.
+See [link]
+[link][https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#oauth-flows-object]</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.Header.html" title="openapi::v3_0::Header struct">Header</a></td><td class="docblock-short"><p>The Header Object follows the structure of the
+<a href="https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#parameterObject">Parameter Object</a>
+with the following changes:</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.ImplicitFlow.html" title="openapi::v3_0::ImplicitFlow struct">ImplicitFlow</a></td><td class="docblock-short"><p>Configuration details for a implicit OAuth Flow
+See [link]
+<a href="https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#oauth-flow-object">link</a></p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.Info.html" title="openapi::v3_0::Info struct">Info</a></td><td class="docblock-short"><p>General information about the API.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.License.html" title="openapi::v3_0::License struct">License</a></td><td class="docblock-short"><p>License information for the exposed API.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.MediaType.html" title="openapi::v3_0::MediaType struct">MediaType</a></td><td class="docblock-short"><p>Each Media Type Object provides schema and examples for the media type identified by its key.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.Operation.html" title="openapi::v3_0::Operation struct">Operation</a></td><td class="docblock-short"><p>Describes a single API operation on a path.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.Parameter.html" title="openapi::v3_0::Parameter struct">Parameter</a></td><td class="docblock-short"><p>Describes a single operation parameter.
+A unique parameter is defined by a combination of a
+<a href="https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#parameterName">name</a>
+and <a href="https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#parameterIn">location</a>.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.PasswordFlow.html" title="openapi::v3_0::PasswordFlow struct">PasswordFlow</a></td><td class="docblock-short"><p>Configuration details for a password OAuth Flow
+See [link]
+[link](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#oauth-flow-object</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.PathItem.html" title="openapi::v3_0::PathItem struct">PathItem</a></td><td class="docblock-short"><p>Describes the operations available on a single path.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.RequestBody.html" title="openapi::v3_0::RequestBody struct">RequestBody</a></td><td class="docblock-short"><p>Describes a single request body.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.Response.html" title="openapi::v3_0::Response struct">Response</a></td><td class="docblock-short"><p>Describes a single response from an API Operation, including design-time, static <code>links</code>
+to operations based on the response.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.Schema.html" title="openapi::v3_0::Schema struct">Schema</a></td><td class="docblock-short"><p>The Schema Object allows the definition of input and output data types.
+These types can be objects, but also primitives and arrays.
+This object is an extended subset of the
+<a href="http://json-schema.org/">JSON Schema Specification Wright Draft 00</a>.
+For more information about the properties, see
+<a href="https://tools.ietf.org/html/draft-wright-json-schema-00">JSON Schema Core</a> and
+<a href="https://tools.ietf.org/html/draft-wright-json-schema-validation-00">JSON Schema Validation</a>.
+Unless stated otherwise, the property definitions follow the JSON Schema.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.Server.html" title="openapi::v3_0::Server struct">Server</a></td><td class="docblock-short"><p>An object representing a Server.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.ServerVariable.html" title="openapi::v3_0::ServerVariable struct">ServerVariable</a></td><td class="docblock-short"><p>An object representing a Server Variable for server URL template substitution.</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.Spec.html" title="openapi::v3_0::Spec struct">Spec</a></td><td class="docblock-short"><p>top level document</p>
+</td></tr><tr class="module-item"><td><a class="struct" href="struct.Tag.html" title="openapi::v3_0::Tag struct">Tag</a></td><td class="docblock-short"><p>Adds metadata to a single tag that is used by the
+<a href="https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#operationObject">Operation Object</a>.
+It is not mandatory to have a Tag Object per tag defined in the Operation Object instances.</p>
+</td></tr></table><h2 id="enums" class="section-header"><a href="#enums">Enums</a></h2>
+<table><tr class="module-item"><td><a class="enum" href="enum.BooleanObjectOrReference.html" title="openapi::v3_0::BooleanObjectOrReference enum">BooleanObjectOrReference</a></td><td class="docblock-short"></td></tr><tr class="module-item"><td><a class="enum" href="enum.Link.html" title="openapi::v3_0::Link enum">Link</a></td><td class="docblock-short"><p>The Link object represents a possible design-time link for a response.</p>
+</td></tr><tr class="module-item"><td><a class="enum" href="enum.MediaTypeExample.html" title="openapi::v3_0::MediaTypeExample enum">MediaTypeExample</a></td><td class="docblock-short"></td></tr><tr class="module-item"><td><a class="enum" href="enum.ObjectOrReference.html" title="openapi::v3_0::ObjectOrReference enum">ObjectOrReference</a></td><td class="docblock-short"></td></tr><tr class="module-item"><td><a class="enum" href="enum.SecurityScheme.html" title="openapi::v3_0::SecurityScheme enum">SecurityScheme</a></td><td class="docblock-short"><p>Defines a security scheme that can be used by the operations. Supported schemes are
+HTTP authentication, an API key (either as a header or as a query parameter),
+OAuth2's common flows (implicit, password, application and access code) as defined
+in <a href="https://tools.ietf.org/html/rfc6749">RFC6749</a>, and
+<a href="https://tools.ietf.org/html/draft-ietf-oauth-discovery-06">OpenID Connect Discovery</a>.</p>
+</td></tr><tr class="module-item"><td><a class="enum" href="enum.Value.html" title="openapi::v3_0::Value enum">Value</a></td><td class="docblock-short"><p>Represents any valid JSON value.</p>
+</td></tr></table></section><section id="search" class="content hidden"></section><section class="footer"></section><script>window.rootPath = "../../";window.currentCrate = "openapi";</script><script src="../../main.js"></script><script defer src="../../search-index.js"></script></body></html>
