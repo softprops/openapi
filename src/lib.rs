@@ -20,14 +20,9 @@
 //!
 //! # Errors
 //!
-//! Operations typically result in a `openapi::Result` Type which is an alias
-//! for Rust's
-//! built-in Result with the Err Type fixed to the
-//! [openapi::errors::Error](errors/struct.Error.html) enum type. These are
-//! provided
-//! using [error_chain](https://github.com/brson/error-chain) crate so their
-//! shape and behavior should be consistent and familiar to existing
-//! error_chain users.
+//! Operations typically result in a [`Result`] type, an alias for
+//! [`std::result::Result`] with the `Err` type fixed to [`Error`],
+//! which implements [`std::error::Error`].
 //!
 use serde::{Deserialize, Serialize};
 use std::{fs::File, io::Read, path::Path, result::Result as StdResult};
