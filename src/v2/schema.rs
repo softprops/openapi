@@ -30,8 +30,7 @@ pub struct Spec {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub host: Option<String>,
     /// The base path to the API. Example: '/api'.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    #[serde(rename = "basePath")]
+    #[serde(rename = "basePath", skip_serializing_if = "Option::is_none")]
     pub base_path: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub schemes: Option<Vec<Scheme>>,
@@ -50,7 +49,7 @@ pub struct Spec {
     pub definitions: Option<BTreeMap<String, Schema>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub parameters: Option<BTreeMap<String, Parameter>>,
-    /// mappings to http response codes or "default"
+    /// Mappings to http response codes or "default"
     #[serde(skip_serializing_if = "Option::is_none")]
     pub responses: Option<BTreeMap<String, Response>>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -58,7 +57,7 @@ pub struct Spec {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub security: Option<Vec<BTreeMap<String, Vec<String>>>>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub external_docs: Option<Vec<ExternalDoc>>,
+    pub external_docs: Option<ExternalDoc>,
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
@@ -85,8 +84,7 @@ pub struct ExternalDoc {
 #[serde(rename_all = "lowercase")]
 pub struct Info {
     /// A unique and precise title of the API.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub title: Option<String>,
+    pub title: String,
     /// A semantic version number of the API.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
@@ -169,6 +167,8 @@ pub struct Operation {
     pub parameters: Option<Vec<ParameterOrRef>>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub security: Option<Vec<SecurityRequirement>>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub deprecated: Option<bool>,
 }
 
 /// https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#securityRequirementObject

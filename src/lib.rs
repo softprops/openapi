@@ -46,7 +46,7 @@ pub enum OpenApi {
     /// Refer to the official
     /// [specification](https://github.com/OAI/OpenAPI-Specification/blob/0dd79f6/versions/2.0.md)
     /// for more information.
-    V2(v2::Spec),
+    V2(Box<v2::Spec>),
 
     /// Version 3.0.1 of the OpenApi specification.
     ///
@@ -54,7 +54,7 @@ pub enum OpenApi {
     /// [specification](https://github.com/OAI/OpenAPI-Specification/blob/0dd79f6/versions/3.0.1.md)
     /// for more information.
     #[allow(non_camel_case_types)]
-    V3_0(v3_0::Spec),
+    V3_0(Box<v3_0::Spec>),
 }
 
 /// deserialize an open api spec from a path
