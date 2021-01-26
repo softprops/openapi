@@ -2,6 +2,7 @@
 
 use crate::v3_0::extension::Extensions;
 use serde::{Deserialize, Serialize};
+use serde_yaml::Value;
 use std::collections::{BTreeMap, HashMap};
 use url::Url;
 
@@ -441,16 +442,16 @@ pub struct Schema {
 
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "enum")]
-    pub enum_values: Option<Vec<String>>,
+    pub enum_values: Option<Vec<Value>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub required: Option<Vec<String>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub items: Option<Box<Schema>>,
+    pub items: Option<Box<ObjectOrReference<Schema>>>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub properties: Option<BTreeMap<String, Schema>>,
+    pub properties: Option<BTreeMap<String, ObjectOrReference<Schema>>>,
 
     #[serde(skip_serializing_if = "Option::is_none", rename = "readOnly")]
     pub read_only: Option<bool>,

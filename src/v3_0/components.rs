@@ -6,24 +6,24 @@ use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
+pub struct Ref {
+    #[serde(rename = "$ref")]
+    pub ref_path: String,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 #[serde(untagged)]
 pub enum ObjectOrReference<T> {
+    Ref(Ref),
     Object(T),
-    Ref {
-        #[serde(rename = "$ref")]
-        ref_path: String,
-    },
 }
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 #[serde(untagged)]
 pub enum BooleanObjectOrReference<T> {
+    Ref(Ref),
     Boolean(bool),
     Object(T),
-    Ref {
-        #[serde(rename = "$ref")]
-        ref_path: String,
-    },
 }
 
 /// Holds a set of reusable objects for different aspects of the OAS.
