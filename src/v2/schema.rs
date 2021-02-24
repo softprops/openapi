@@ -168,6 +168,8 @@ pub struct Operation {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub parameters: Option<Vec<ParameterOrRef>>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub deprecated: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub security: Option<Vec<SecurityRequirement>>,
 }
 

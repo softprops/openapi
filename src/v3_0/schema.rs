@@ -363,6 +363,8 @@ pub struct Parameter {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub required: Option<bool>,
     #[serde(skip_serializing_if = "Option::is_none")]
+    pub deprecated: Option<bool>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub schema: Option<Schema>,
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "uniqueItems")]
@@ -478,6 +480,9 @@ pub struct Schema {
     ///       [`serde_json::Value`](https://docs.serde.rs/serde_json/value/enum.Value.html). [spec][https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#data-types]
     #[serde(skip_serializing_if = "Option::is_none")]
     pub example: Option<serde_json::value::Value>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub deprecated: Option<bool>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     pub title: Option<String>,
