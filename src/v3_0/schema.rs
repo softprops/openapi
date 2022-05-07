@@ -180,6 +180,29 @@ pub struct ServerVariable {
     pub description: Option<String>,
 }
 
+/// Describes all of the possible HTTP method verbs for operations on a single path.
+///
+/// See <https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.1.md#path-item-object>
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Ord, PartialOrd, Eq)]
+pub enum Method {
+    #[serde(rename = "get")]
+    Get,
+    #[serde(rename = "put")]
+    Put,
+    #[serde(rename = "post")]
+    Post,
+    #[serde(rename = "delete")]
+    Delete,
+    #[serde(rename = "options")]
+    Options,
+    #[serde(rename = "head")]
+    Head,
+    #[serde(rename = "patch")]
+    Patch,
+    #[serde(rename = "trace")]
+    Trace,
+}
+
 /// Describes the operations available on a single path.
 ///
 /// A Path Item MAY be empty, due to [ACL
@@ -205,30 +228,9 @@ pub struct PathItem {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
 
-    /// A definition of a GET operation on this path.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub get: Option<Operation>,
-    /// A definition of a PUT operation on this path.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub put: Option<Operation>,
-    /// A definition of a POST operation on this path.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub post: Option<Operation>,
-    /// A definition of a DELETE operation on this path.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub delete: Option<Operation>,
-    /// A definition of a OPTIONS operation on this path.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub options: Option<Operation>,
-    /// A definition of a HEAD operation on this path.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub head: Option<Operation>,
-    /// A definition of a PATCH operation on this path.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub patch: Option<Operation>,
-    /// A definition of a TRACE operation on this path.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub trace: Option<Operation>,
+    /// The definitions of a all operation on this path.
+    #[serde(flatten)]
+    pub operations: BTreeMap<Method, Operation>,
 
     /// An alternative `server` array to service all operations in this path.
     #[serde(skip_serializing_if = "Option::is_none")]
