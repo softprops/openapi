@@ -59,13 +59,12 @@ pub struct Spec {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub components: Option<Components>,
 
-    // FIXME: Implement
-    // /// A declaration of which security mechanisms can be used across the API.
-    // /// The list of  values includes alternative security requirement objects that can be used.
-    // /// Only one of the security requirement objects need to be satisfied to authorize a request.
-    // /// Individual operations can override this definition.
-    // #[serde(skip_serializing_if = "Option::is_none")]
-    // pub security: Option<SecurityRequirement>,
+    /// A declaration of which security mechanisms can be used across the API.
+    /// The list of  values includes alternative security requirement objects that can be used.
+    /// Only one of the security requirement objects need to be satisfied to authorize a request.
+    /// Individual operations can override this definition.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub security: Option<SecurityRequirement>,
     /// A list of tags used by the specification with additional metadata.
     ///The order of the tags can be used to reflect on their order by the parsing tools.
     /// Not all tags that are used by the
@@ -330,14 +329,13 @@ pub struct Operation {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub deprecated: Option<bool>,
 
-    // FIXME: Implement
-    // /// A declaration of which security mechanisms can be used for this operation. The list of
-    // /// values includes alternative security requirement objects that can be used. Only one
-    // /// of the security requirement objects need to be satisfied to authorize a request.
-    // /// This definition overrides any declared top-level
-    // /// [`security`](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#oasSecurity).
-    // /// To remove a top-level security declaration, an empty array can be used.
-    // pub security: Option<SecurityRequirement>,
+    /// A declaration of which security mechanisms can be used for this operation. The list of
+    /// values includes alternative security requirement objects that can be used. Only one
+    /// of the security requirement objects need to be satisfied to authorize a request.
+    /// This definition overrides any declared top-level
+    /// [`security`](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#oasSecurity).
+    /// To remove a top-level security declaration, an empty array can be used.
+    pub security: Option<SecurityRequirement>,
     /// An alternative `server` array to service this operation. If an alternative `server`
     /// object is specified at the Path Item Object or Root level, it will be overridden by
     /// this value.
@@ -345,6 +343,11 @@ pub struct Operation {
     pub servers: Option<Vec<Server>>,
     #[serde(flatten)]
     pub extensions: Extensions,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
+pub struct SecurityRequirement {
+    scopes: BTreeMap<String, Vec<String>>,
 }
 
 // FIXME: Verify against OpenAPI 3.0
