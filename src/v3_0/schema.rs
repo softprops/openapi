@@ -347,7 +347,7 @@ pub struct Operation {
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
 pub struct SecurityRequirement {
-    scopes: BTreeMap<String, Vec<String>>,
+    pub scopes: BTreeMap<String, Vec<String>>,
 }
 
 // FIXME: Verify against OpenAPI 3.0
