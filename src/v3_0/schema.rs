@@ -202,6 +202,22 @@ pub enum Method {
     Trace,
 }
 
+impl Method {
+    pub fn as_str(&self) -> &str {
+        use Method::*;
+        match self {
+            Get => "get",
+            Put => "put",
+            Post => "post",
+            Delete => "delete",
+            Options => "options",
+            Head => "head",
+            Patch => "patch",
+            Trace => "trace",
+        }
+    }
+}
+
 /// Describes the operations available on a single path.
 ///
 /// A Path Item MAY be empty, due to [ACL
