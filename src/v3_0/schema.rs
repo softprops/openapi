@@ -59,13 +59,12 @@ pub struct Spec {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub components: Option<Components>,
 
-    // FIXME: Implement
-    // /// A declaration of which security mechanisms can be used across the API.
-    // /// The list of  values includes alternative security requirement objects that can be used.
-    // /// Only one of the security requirement objects need to be satisfied to authorize a request.
-    // /// Individual operations can override this definition.
-    // #[serde(skip_serializing_if = "Option::is_none")]
-    // pub security: Option<SecurityRequirement>,
+    /// A declaration of which security mechanisms can be used across the API.
+    /// The list of  values includes alternative security requirement objects that can be used.
+    /// Only one of the security requirement objects need to be satisfied to authorize a request.
+    /// Individual operations can override this definition.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub security: Option<SecurityRequirement>,
     /// A list of tags used by the specification with additional metadata.
     ///The order of the tags can be used to reflect on their order by the parsing tools.
     /// Not all tags that are used by the
@@ -180,6 +179,45 @@ pub struct ServerVariable {
     pub description: Option<String>,
 }
 
+/// Describes all of the possible HTTP method verbs for operations on a single path.
+///
+/// See <https://github.com/OAI/OpenAPI-Specification/blob/main/versions/3.0.1.md#path-item-object>
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Ord, PartialOrd, Eq)]
+pub enum Method {
+    #[serde(rename = "get")]
+    Get,
+    #[serde(rename = "put")]
+    Put,
+    #[serde(rename = "post")]
+    Post,
+    #[serde(rename = "delete")]
+    Delete,
+    #[serde(rename = "options")]
+    Options,
+    #[serde(rename = "head")]
+    Head,
+    #[serde(rename = "patch")]
+    Patch,
+    #[serde(rename = "trace")]
+    Trace,
+}
+
+impl Method {
+    pub fn as_str(&self) -> &str {
+        use Method::*;
+        match self {
+            Get => "get",
+            Put => "put",
+            Post => "post",
+            Delete => "delete",
+            Options => "options",
+            Head => "head",
+            Patch => "patch",
+            Trace => "trace",
+        }
+    }
+}
+
 /// Describes the operations available on a single path.
 ///
 /// A Path Item MAY be empty, due to [ACL
@@ -205,30 +243,9 @@ pub struct PathItem {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub description: Option<String>,
 
-    /// A definition of a GET operation on this path.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub get: Option<Operation>,
-    /// A definition of a PUT operation on this path.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub put: Option<Operation>,
-    /// A definition of a POST operation on this path.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub post: Option<Operation>,
-    /// A definition of a DELETE operation on this path.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub delete: Option<Operation>,
-    /// A definition of a OPTIONS operation on this path.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub options: Option<Operation>,
-    /// A definition of a HEAD operation on this path.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub head: Option<Operation>,
-    /// A definition of a PATCH operation on this path.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub patch: Option<Operation>,
-    /// A definition of a TRACE operation on this path.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub trace: Option<Operation>,
+    /// The definitions of a all operation on this path.
+    #[serde(flatten)]
+    pub operations: BTreeMap<Method, Operation>,
 
     /// An alternative `server` array to service all operations in this path.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -313,6 +330,8 @@ pub struct Operation {
     /// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#responsesObject>.
     pub responses: BTreeMap<String, Response>,
 
+    // TODO: see why this doesn't work
+    // pub responses: BTreeMap<String, ObjectOrReference<Response>>,
     /// A map of possible out-of band callbacks related to the parent operation. The key is
     /// a unique identifier for the Callback Object. Each value in the map is a
     /// [Callback Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#callbackObject)
@@ -328,14 +347,13 @@ pub struct Operation {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub deprecated: Option<bool>,
 
-    // FIXME: Implement
-    // /// A declaration of which security mechanisms can be used for this operation. The list of
-    // /// values includes alternative security requirement objects that can be used. Only one
-    // /// of the security requirement objects need to be satisfied to authorize a request.
-    // /// This definition overrides any declared top-level
-    // /// [`security`](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#oasSecurity).
-    // /// To remove a top-level security declaration, an empty array can be used.
-    // pub security: Option<SecurityRequirement>,
+    /// A declaration of which security mechanisms can be used for this operation. The list of
+    /// values includes alternative security requirement objects that can be used. Only one
+    /// of the security requirement objects need to be satisfied to authorize a request.
+    /// This definition overrides any declared top-level
+    /// [`security`](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#oasSecurity).
+    /// To remove a top-level security declaration, an empty array can be used.
+    pub security: Option<SecurityRequirement>,
     /// An alternative `server` array to service this operation. If an alternative `server`
     /// object is specified at the Path Item Object or Root level, it will be overridden by
     /// this value.
@@ -343,6 +361,11 @@ pub struct Operation {
     pub servers: Option<Vec<Server>>,
     #[serde(flatten)]
     pub extensions: Extensions,
+}
+
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
+pub struct SecurityRequirement {
+    pub scopes: BTreeMap<String, Vec<String>>,
 }
 
 // FIXME: Verify against OpenAPI 3.0
@@ -578,6 +601,10 @@ pub struct Schema {
 /// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#responseObject>.
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
 pub struct Response {
+    #[serde(rename = "$ref")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ref_path: Option<String>,
+
     /// A short description of the response.
     /// [CommonMark syntax](http://spec.commonmark.org/) MAY be used for rich text representation.
     pub description: Option<String>,
