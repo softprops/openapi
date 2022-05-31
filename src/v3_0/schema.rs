@@ -330,6 +330,8 @@ pub struct Operation {
     /// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#responsesObject>.
     pub responses: BTreeMap<String, Response>,
 
+    // TODO: see why this doesn't work
+    // pub responses: BTreeMap<String, ObjectOrReference<Response>>,
     /// A map of possible out-of band callbacks related to the parent operation. The key is
     /// a unique identifier for the Callback Object. Each value in the map is a
     /// [Callback Object](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#callbackObject)
@@ -599,6 +601,10 @@ pub struct Schema {
 /// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#responseObject>.
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
 pub struct Response {
+    #[serde(rename = "$ref")]
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub ref_path: Option<String>,
+
     /// A short description of the response.
     /// [CommonMark syntax](http://spec.commonmark.org/) MAY be used for rich text representation.
     pub description: Option<String>,
