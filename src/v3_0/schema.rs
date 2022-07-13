@@ -24,7 +24,7 @@ impl Spec {
 }
 
 /// top level document
-#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default, Builder)]
 pub struct Spec {
     /// This string MUST be the [semantic version number](https://semver.org/spec/v2.0.0.html)
     /// of the
@@ -86,7 +86,7 @@ pub struct Spec {
 ///
 ///
 /// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#infoObject>.
-#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default, Builder)]
 // #[serde(rename_all = "lowercase")]
 pub struct Info {
     /// The title of the application.
@@ -112,7 +112,7 @@ pub struct Info {
 /// Contact information for the exposed API.
 ///
 /// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#contactObject>.
-#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default, Builder)]
 pub struct Contact {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -130,7 +130,7 @@ pub struct Contact {
 /// License information for the exposed API.
 ///
 /// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#licenseObject>.
-#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default, Builder)]
 pub struct License {
     /// The license name used for the API.
     pub name: String,
@@ -144,7 +144,7 @@ pub struct License {
 /// An object representing a Server.
 ///
 /// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#serverObject>.
-#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default, Builder)]
 pub struct Server {
     /// A URL to the target host. This URL supports Server Variables and MAY be relative, to
     /// indicate that the host location is relative to the location where the OpenAPI document
@@ -163,7 +163,7 @@ pub struct Server {
 /// An object representing a Server Variable for server URL template substitution.
 ///
 /// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#serverVariableObject>.
-#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default, Builder)]
 pub struct ServerVariable {
     /// The default value to use for substitution, and to send, if an alternate value is not
     /// supplied. Unlike the Schema Object's default, this value MUST be provided by the consumer.
@@ -186,7 +186,7 @@ pub struct ServerVariable {
 /// constraints](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#securityFiltering).
 /// The path itself is still exposed to the documentation viewer but they will not know which
 /// operations and parameters are available.
-#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default, Builder)]
 pub struct PathItem {
     /// Allows for an external definition of this path item. The referenced structure MUST be
     /// in the format of a
@@ -253,7 +253,7 @@ pub struct PathItem {
 /// Describes a single API operation on a path.
 ///
 /// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#operationObject>.
-#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default, Builder)]
 // #[serde(rename_all = "lowercase")]
 pub struct Operation {
     /// A list of tags for API documentation control. Tags can be used for logical grouping of
@@ -352,7 +352,7 @@ pub struct Operation {
 /// and [location](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#parameterIn).
 ///
 /// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#parameterObject>.
-#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default, Builder)]
 pub struct Parameter {
     /// The name of the parameter.
     pub name: String,
@@ -400,7 +400,7 @@ pub struct Parameter {
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
-enum ParameterStyle {
+pub enum ParameterStyle {
     Matrix,
     Label,
     Form,
@@ -421,7 +421,7 @@ enum ParameterStyle {
 /// Unless stated otherwise, the property definitions follow the JSON Schema.
 ///
 /// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#schemaObject>.
-#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default, Builder)]
 pub struct Schema {
     /// [JSON reference](https://tools.ietf.org/html/draft-pbryan-zyp-json-ref-03)
     /// path to another definition
@@ -576,7 +576,7 @@ pub struct Schema {
 /// to operations based on the response.
 ///
 /// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#responseObject>.
-#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default, Builder)]
 pub struct Response {
     /// A short description of the response.
     /// [CommonMark syntax](http://spec.commonmark.org/) MAY be used for rich text representation.
@@ -614,7 +614,7 @@ pub struct Response {
 ///    `header` (for example, [`style`](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#parameterStyle)).
 ///
 /// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#headerObject>.
-#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default, Builder)]
 pub struct Header {
     // FIXME: Is the third change properly implemented?
     // FIXME: Merge `ObjectOrReference<Header>::Reference` and `ParameterOrRef::Reference`
@@ -654,7 +654,7 @@ pub struct Header {
 /// Describes a single request body.
 ///
 /// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#requestBodyObject>.
-#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default, Builder)]
 pub struct RequestBody {
     /// A brief description of the request body. This could contain examples of use.
     /// [CommonMark syntax](http://spec.commonmark.org/) MAY be used for rich text representation.
@@ -768,7 +768,7 @@ pub enum Link {
 /// Each Media Type Object provides schema and examples for the media type identified by its key.
 ///
 /// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#media-type-object>.
-#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default, Builder)]
 pub struct MediaType {
     /// The schema defining the type used for the request body.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -804,7 +804,7 @@ pub enum MediaTypeExample {
 }
 
 /// A single encoding definition applied to a single schema property.
-#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default, Builder)]
 pub struct Encoding {
     /// The Content-Type for encoding a specific property. Default value depends on the
     /// property type: for `string` with `format` being `binary` – `application/octet-stream`;
@@ -852,7 +852,7 @@ pub struct Encoding {
 }
 
 /// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#exampleObject>.
-#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default, Builder)]
 pub struct Example {
     /// Short description for the example.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -1000,7 +1000,7 @@ pub struct Callback(
 /// It is not mandatory to have a Tag Object per tag defined in the Operation Object instances.
 ///
 /// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#tagObject>.
-#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default, Builder)]
 pub struct Tag {
     /// The name of the tag.
     pub name: String,
