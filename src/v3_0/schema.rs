@@ -1,6 +1,7 @@
 //! Schema specification for [OpenAPI 3.0.0](https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.0.md)
 
 use crate::v3_0::extension::Extensions;
+use crate::v3_0::components::OrReference;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap};
 use url::Url;
@@ -407,6 +408,8 @@ pub struct Parameter {
     style: Option<ParameterStyle>,
 }
 
+impl OrReference for Parameter {}
+
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 #[serde(rename_all = "camelCase")]
 pub enum ParameterStyle {
@@ -581,6 +584,8 @@ pub struct Schema {
     #[serde(flatten)]
     pub extensions: HashMap<String, String>,
 }
+
+impl OrReference for Schema {}
 
 /// Describes a single response from an API Operation, including design-time, static `links`
 /// to operations based on the response.
