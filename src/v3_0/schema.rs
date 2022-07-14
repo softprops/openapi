@@ -553,8 +553,11 @@ pub struct Schema {
     /// of the schema if one is not provided. Unlike JSON Schema, the value MUST conform to the
     /// defined type for the Schema Object defined at the same level. For example, if type is
     /// `string`, then `default` can be `"foo"` but cannot be `1`.
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pub default: Option<serde_json::Value>,
+    #[serde(
+        skip_serializing_if = "Option::is_none",
+        rename = "default"
+    )]
+    pub default_value: Option<serde_json::Value>,
 
     /// Inline or referenced schema MUST be of a [Schema Object](#schemaObject) and not a standard
     /// JSON Schema.
