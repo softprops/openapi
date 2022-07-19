@@ -692,6 +692,8 @@ pub struct RequestBody {
     pub required: Option<bool>,
 }
 
+impl OrReference for RequestBody {}
+
 /// The Link object represents a possible design-time link for a response.
 ///
 /// The presence of a link does not guarantee the caller's ability to successfully invoke it,
