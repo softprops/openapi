@@ -15,6 +15,12 @@ pub enum ObjectOrReference<T> {
     },
 }
 
+pub trait OrReference {
+    fn or_ref(self) -> ObjectOrReference<Self> where Self: Sized {
+        ObjectOrReference::Object(self)
+    }
+}
+
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq)]
 #[serde(untagged)]
 pub enum BooleanObjectOrReference<T> {
@@ -32,7 +38,8 @@ pub enum BooleanObjectOrReference<T> {
 /// they are explicitly referenced from properties outside the components object.
 ///
 /// See <https://github.com/OAI/OpenAPI-Specification/blob/master/versions/3.0.1.md#componentsObject>.
-#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default, Builder)]
+#[builder(setter(into, strip_option), default)]
 pub struct Components {
     /// An object to hold reusable Schema Objects.
     #[serde(skip_serializing_if = "Option::is_none")]

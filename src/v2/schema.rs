@@ -19,8 +19,9 @@ impl Default for Scheme {
 }
 
 /// top level document
-#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default, Builder)]
 #[serde(rename_all = "camelCase")]
+#[builder(setter(into, strip_option), default)]
 pub struct Spec {
     /// The Swagger version of this document.
     pub swagger: String,
@@ -61,8 +62,9 @@ pub struct Spec {
     pub external_docs: Option<Vec<ExternalDoc>>,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default, Builder)]
 #[serde(rename_all = "lowercase")]
+#[builder(setter(into, strip_option), default)]
 pub struct Tag {
     pub name: String,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -71,7 +73,8 @@ pub struct Tag {
     pub external_docs: Option<Vec<ExternalDoc>>,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default, Builder)]
+#[builder(setter(into, strip_option), default)]
 pub struct ExternalDoc {
     pub url: String,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -81,8 +84,9 @@ pub struct ExternalDoc {
 /// General information about the API.
 ///
 /// https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#info-object
-#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default, Builder)]
 #[serde(rename_all = "lowercase")]
+#[builder(setter(into, strip_option), default)]
 pub struct Info {
     /// A unique and precise title of the API.
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -100,7 +104,8 @@ pub struct Info {
     pub version: Option<String>,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default, Builder)]
+#[builder(setter(into, strip_option), default)]
 pub struct Contact {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub name: Option<String>,
@@ -113,7 +118,8 @@ pub struct Contact {
 }
 
 /// todo x-* properties
-#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default, Builder)]
+#[builder(setter(into, strip_option), default)]
 pub struct License {
     /// The name of the license type. It's encouraged to use an OSI
     /// compatible license.
@@ -126,7 +132,8 @@ pub struct License {
 }
 
 /// todo support x-* properties
-#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default, Builder)]
+#[builder(setter(into, strip_option), default)]
 pub struct PathItem {
     #[serde(skip_serializing_if = "Option::is_none")]
     pub get: Option<Operation>,
@@ -147,7 +154,8 @@ pub struct PathItem {
 }
 
 /// https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#operation-object
-#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default, Builder)]
+#[builder(setter(into, strip_option), default)]
 #[serde(rename_all = "lowercase")]
 pub struct Operation {
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -174,7 +182,8 @@ pub struct Operation {
 /// https://github.com/OAI/OpenAPI-Specification/blob/master/versions/2.0.md#securityRequirementObject
 pub type SecurityRequirement = BTreeMap<String, Vec<String>>;
 
-#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default, Builder)]
+#[builder(setter(into, strip_option), default)]
 #[serde(rename_all = "camelCase")]
 pub struct Parameter {
     pub name: String,
@@ -199,7 +208,8 @@ pub struct Parameter {
     default: Option<serde_json::Value>,
 }
 
-#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default, Builder)]
+#[builder(setter(into, strip_option), default)]
 pub struct Response {
     pub description: String,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -308,7 +318,8 @@ pub enum Flow {
 /// the shape and properties of an object.
 ///
 /// This may also contain a `$ref` to another definition
-#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default)]
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Default, Builder)]
+#[builder(setter(into, strip_option), default)]
 pub struct Schema {
     #[serde(skip_serializing_if = "Option::is_none")]
     /// [JSON reference](https://tools.ietf.org/html/draft-pbryan-zyp-json-ref-03)

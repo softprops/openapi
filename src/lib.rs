@@ -27,6 +27,9 @@
 use serde::{Deserialize, Serialize};
 use std::{fs::File, io::Read, path::Path, result::Result as StdResult};
 
+#[macro_use]
+extern crate derive_builder;
+
 pub mod error;
 pub mod v2;
 pub mod v3_0;
