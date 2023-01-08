@@ -523,6 +523,9 @@ pub struct Schema {
     #[serde(skip_serializing_if = "Option::is_none", rename = "minProperties")]
     pub min_properties: Option<u32>,
 
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub deprecated: Option<bool>,
+
     // The following properties are taken from the JSON Schema definition but their
     // definitions were adjusted to the OpenAPI Specification.
     // - type - Value MUST be a string. Multiple types via an array are not supported.
